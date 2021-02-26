@@ -17,8 +17,17 @@ def main():
             print("\nEXIT\n")
             break
 
+        elif op == "i":
+            print("Operation not yet implemented")
+
+        elif op == "c":
+            print("Operation not yet implemented")
+
+        elif op == "s":
+            print("Operation not yet implemented")
+
         elif op == "r":
-            print("hello")
+            print("Operation not yet implemented")
 
         else:
             print("Invalid option!\n")
