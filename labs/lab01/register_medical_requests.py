@@ -3,7 +3,7 @@ def menu():
     print("(i) register new request")
     print("(c) cancel request")
     print("(s) check request status")
-    print("(r) see request' report")
+    print("(r) see request report")
     print("(e) exit")
     return input("Option? ")
 
