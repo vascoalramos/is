@@ -7,7 +7,7 @@ from config import username, password, db_name
 def register_request(conn, r):
     with conn.cursor() as cursor:
         cursor.execute(
-            f"""INSERT INTO requests (date, hour, patient_id, patient_name, patient_address, patient_phone_number, episode_number, info)
+            f"""INSERT INTO work_list (date, hour, patient_id, patient_name, patient_address, patient_phone_number, episode_number, info)
             VALUES ('{r["date"]}', '{r["hour"]}', {r["patient"]["number"]}, '{r["patient"]["name"]}', '{r["patient"]["address"]}', '{r["patient"]["phone_number"]}', {r["episode_number"]}, '{r["clinical_info"]}')"""
         )
         # TODO: insert to work list
@@ -22,7 +22,7 @@ def cancel_request(conn):
 
 def check_request_status(conn, req_id):
     with conn.cursor() as cursor:
-        cursor.execute(f"SELECT status FROM requests WHERE number={req_id}")
+        cursor.execute(f"SELECT status FROM work_list WHERE number={req_id}")
         results = cursor.fetchall()
         if results:
             return results[0][0]
@@ -32,7 +32,7 @@ def check_request_status(conn, req_id):
 
 def get_request_report(conn, req_id):
     with conn.cursor() as cursor:
-        cursor.execute(f"SELECT report FROM requests WHERE number={req_id}")
+        cursor.execute(f"SELECT report FROM work_list WHERE number={req_id}")
         results = cursor.fetchall()
         if results:
             return results[0][0]
@@ -42,7 +42,7 @@ def get_request_report(conn, req_id):
 
 def check_request_exists(conn, req_id):
     with conn.cursor() as cursor:
-        cursor.execute(f"SELECT * FROM requests WHERE number={req_id}")
+        cursor.execute(f"SELECT * FROM work_list WHERE number={req_id}")
         return cursor.fetchall() != []
 
 
