@@ -28,6 +28,7 @@ def check_request_status(conn, req_id):
     with conn.cursor() as cursor:
         cursor.execute(f"SELECT status FROM work_list WHERE number={req_id}")
         results = cursor.fetchall()
+        conn.commit()
         if results:
             return results[0][0]
         else:
@@ -38,6 +39,7 @@ def get_request_report(conn, req_id):
     with conn.cursor() as cursor:
         cursor.execute(f"SELECT report FROM work_list WHERE number={req_id}")
         results = cursor.fetchall()
+        conn.commit()
         if results:
             return results[0][0]
         else:
@@ -47,7 +49,17 @@ def get_request_report(conn, req_id):
 def check_request_exists(conn, req_id):
     with conn.cursor() as cursor:
         cursor.execute(f"SELECT * FROM work_list WHERE number={req_id}")
-        return cursor.fetchall() != []
+        results = cursor.fetchall()
+        conn.commit()
+        return results != []
+
+
+def check_request_is_canceled(conn, req_id):
+    with conn.cursor() as cursor:
+        cursor.execute(f"SELECT status FROM work_list WHERE number={req_id}")
+        results = cursor.fetchall()
+        conn.commit()
+        return results[0][0].lower() == "canceled"
 
 
 def menu():
@@ -105,8 +117,11 @@ def main():
                 req_id = int(input("Medical exam request nº: "))
 
                 if check_request_exists(conn, req_id):
-                    cancel_request(conn, req_id)
-                    print(f"Medical exam request canceled successfully!\n")
+                    if not check_request_is_canceled(conn, req_id):
+                        cancel_request(conn, req_id)
+                        print(f"Medical exam request canceled successfully!\n")
+                    else:
+                        print(f"The request nº{req_id} was already canceled!\n")
                 else:
                     print(f"The request nº{req_id} does not exist!\n")
             except:
