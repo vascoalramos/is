@@ -1,7 +1,11 @@
 from mysql.connector import connect
 from hl7apy.core import Message
 
-from config import username, password, db_name
+from config import services
+
+username = services[0]["username"]
+password = services[0]["password"]
+db_name = services[0]["db_name"]
 
 
 def register_request(conn, r):
