@@ -10,14 +10,14 @@ def register_request(conn, r):
             f"""INSERT INTO work_list (date, hour, patient_id, patient_name, patient_address, patient_phone_number, episode_number, info)
             VALUES ('{r["date"]}', '{r["hour"]}', {r["patient"]["number"]}, '{r["patient"]["name"]}', '{r["patient"]["address"]}', '{r["patient"]["phone_number"]}', {r["episode_number"]}, '{r["clinical_info"]}')"""
         )
-        # TODO: insert to work list
-
         conn.commit()
         return cursor.lastrowid
 
 
-def cancel_request(conn):
-    print("Operation not yet implemented\n")
+def cancel_request(conn, req_id):
+    with conn.cursor() as cursor:
+        cursor.execute(f"UPDATE work_list SET status='canceled' WHERE number={req_id}")
+        conn.commit()
 
 
 def check_request_status(conn, req_id):
@@ -48,7 +48,7 @@ def check_request_exists(conn, req_id):
 
 def menu():
     print("Available options:")
-    print("(i) register new request")
+    print("(i) insert new request")
     print("(c) cancel request")
     print("(s) check request status")
     print("(r) see request report")
@@ -97,7 +97,16 @@ def main():
                 print("Operation failded! Try again!\nError:" + str(e) + "\n")
 
         elif op == "c":
-            cancel_request(conn)
+            try:
+                req_id = int(input("Medical exam request ID: "))
+
+                if check_request_exists(conn, req_id):
+                    cancel_request(conn, req_id)
+                    print(f"Medical exam request canceled successfully!\n")
+                else:
+                    print(f"The request with ID '{req_id}' does not exist!\n")
+            except:
+                print("Invalid input!")
 
         elif op == "s":
             try:
