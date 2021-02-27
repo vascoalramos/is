@@ -96,52 +96,48 @@ def main():
 
             try:
                 req_id = register_request(conn, request)
-                print(f"New request inserted successfully. ID: {req_id}\n")
+                print(f"New request inserted successfully. Number: {req_id}\n")
             except Exception as e:
                 print("Operation failded! Try again!\nError:" + str(e) + "\n")
 
         elif op == "c":
             try:
-                req_id = int(input("Medical exam request ID: "))
+                req_id = int(input("Medical exam request nº: "))
 
                 if check_request_exists(conn, req_id):
                     cancel_request(conn, req_id)
                     print(f"Medical exam request canceled successfully!\n")
                 else:
-                    print(f"The request with ID '{req_id}' does not exist!\n")
+                    print(f"The request nº{req_id} does not exist!\n")
             except:
                 print("Invalid input!")
 
         elif op == "s":
             try:
-                req_id = int(input("Medical exam request ID: "))
+                req_id = int(input("Medical exam request nº: "))
 
                 if check_request_exists(conn, req_id):
                     status = check_request_status(conn, req_id)
                     print(
-                        f"The status for the request with ID '{req_id}' is:  {status.upper()}\n"
+                        f"The status for the request nº{req_id} is:  {status.upper()}\n"
                     )
                 else:
-                    print(f"The request with ID '{req_id}' does not exist!\n")
+                    print(f"The request with nº{req_id} does not exist!\n")
             except:
                 print("Invalid input!")
 
         elif op == "r":
             try:
-                req_id = int(input("Medical exam request ID: "))
+                req_id = int(input("Medical exam request nº: "))
 
                 if check_request_exists(conn, req_id):
                     report = get_request_report(conn, req_id)
                     if report:
-                        print(
-                            f"The report for the request with ID '{req_id}' is:\n{report}\n"
-                        )
+                        print(f"The report for the request nº{req_id} is:\n{report}\n")
                     else:
-                        print(
-                            f"The request with ID '{req_id}' does not have a report yet!\n"
-                        )
+                        print(f"The request nº{req_id} does not have a report yet!\n")
                 else:
-                    print(f"The request with ID '{req_id}' does not exist!\n")
+                    print(f"The request nº{req_id} does not exist!\n")
             except:
                 print("Invalid input!")
 
