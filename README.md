@@ -2,7 +2,7 @@
 
 ## How to run
 
-### Service
+### Service 1
 
 ```bash
 source venv/bin/activate
