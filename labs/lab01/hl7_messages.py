@@ -57,7 +57,6 @@ def generate_hl7_orm_o01_message(sender, receiver, data, cancel):
     )
 
     m.validate()
-    # return m.to_mllp().replace("\r", "\n")  # TODO: fix this
     return m.to_mllp()
 
 
