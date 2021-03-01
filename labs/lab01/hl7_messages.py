@@ -7,7 +7,7 @@ import re
 from config import IP as SERVER_IP
 
 
-def generate_hl7_orm_o01_message(sender, receiver, data, cancel):
+def generate_hl7_orm_o01_message(sender, receiver, data, op):
     m = Message("ORM_O01")
 
     # msh
@@ -31,7 +31,13 @@ def generate_hl7_orm_o01_message(sender, receiver, data, cancel):
     m.ORM_O01_PATIENT.ORM_O01_PATIENT_VISIT.pv1.pv1_19 = str(data["episode_number"])
 
     # orc
-    m.ORM_O01_ORDER.orc.orc_1 = "CA" if cancel else "NW"
+    if op == 1:
+        m.ORM_O01_ORDER.orc.orc_1 = "CA"
+    elif op == 2:
+        m.ORM_O01_ORDER.orc.orc_1 = "SC"
+        m.ORM_O01_ORDER.orc.orc_5 = "CM"
+    else:
+        m.ORM_O01_ORDER.orc.orc_1 = "NW"
     m.ORM_O01_ORDER.ORC.orc_2 = str(data["number"])
     m.ORM_O01_ORDER.ORC.orc_3 = str(data["number"])
     m.ORM_O01_ORDER.ORC.orc_9 = m.msh.msh_7
@@ -60,9 +66,9 @@ def generate_hl7_orm_o01_message(sender, receiver, data, cancel):
     return m.to_mllp()
 
 
-def generate_hl7_message(type, sender, receiver, data, cancel=False):
+def generate_hl7_message(type, sender, receiver, data, op=0):
     if type == "ORM_O01":
-        return generate_hl7_orm_o01_message(sender, receiver, data, cancel)
+        return generate_hl7_orm_o01_message(sender, receiver, data, op)
     else:
         raise ValueError("Message Type not suported")
 
