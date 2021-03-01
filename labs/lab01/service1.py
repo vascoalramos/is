@@ -1,11 +1,73 @@
 from mysql.connector import connect
 from hl7apy.core import Message
+import hl7
+import nanoid
 
 from config import services
 
 username = services[0]["username"]
 password = services[0]["password"]
 db_name = services[0]["db_name"]
+
+
+def generate_hl7_orm_o01_message(sender, receiver, data, cancel=False):
+    m = Message("ORM_O01")
+
+    # msh
+    m.msh.msh_3 = sender
+    m.msh.msh_4 = sender
+    m.msh.msh_5 = receiver
+    m.msh.msh_6 = receiver
+    m.msh.msh_9 = "ORM^O01"
+    m.msh.msh_10 = nanoid.generate()
+    m.msh.msh_11 = "P"
+    m.msh.validate()
+
+    # pid
+    m.add_group("ORM_O01_PATIENT")
+    m.ORM_O01_PATIENT.pid.pid_3 = str(data["patient"]["number"])
+    m.ORM_O01_PATIENT.pid.pid_5 = data["patient"]["name"]
+    m.ORM_O01_PATIENT.pid.pid_11 = data["patient"]["address"]
+    m.ORM_O01_PATIENT.pid.pid_13 = data["patient"]["phone_number"]
+    m.ORM_O01_PATIENT.pid.validate()
+
+    # pv1
+    m.ORM_O01_PATIENT.ORM_O01_PATIENT_VISIT.pv1.pv1_2 = "I"
+    m.ORM_O01_PATIENT.ORM_O01_PATIENT_VISIT.pv1.pv1_19 = str(data["episode_number"])
+    m.ORM_O01_PATIENT.ORM_O01_PATIENT_VISIT.pv1.validate()
+
+    # orc
+    m.ORM_O01_ORDER.orc.orc_1 = "CA" if cancel else "NW"
+    m.ORM_O01_ORDER.ORC.orc_2 = "4727374"
+    m.ORM_O01_ORDER.ORC.orc_3 = "4727374"
+    m.ORM_O01_ORDER.ORC.orc_9 = m.msh.msh_7
+    m.ORM_O01_ORDER.ORC.validate()
+
+    # obr
+    # m.ORM_O01_ORDER.ORM_O01_ORDER_DETAIL.ORM_O01_OBRRQDRQ1RXOODSODT_SUPPGRP.add_segment("OBR")
+    m.ORM_O01_ORDER.ORM_O01_ORDER_DETAIL.ORM_O01_OBRRQDRQ1RXOODSODT_SUPPGRP.OBR.obr_2 = (
+        "1"
+    )
+    m.ORM_O01_ORDER.ORM_O01_ORDER_DETAIL.ORM_O01_OBRRQDRQ1RXOODSODT_SUPPGRP.OBR.obr_2 = (
+        "4727374"
+    )
+    m.ORM_O01_ORDER.ORM_O01_ORDER_DETAIL.ORM_O01_OBRRQDRQ1RXOODSODT_SUPPGRP.OBR.obr_3 = (
+        "4727374"
+    )
+    m.ORM_O01_ORDER.ORM_O01_ORDER_DETAIL.ORM_O01_OBRRQDRQ1RXOODSODT_SUPPGRP.OBR.OBR_4 = (
+        "M10405^TORAX, UMA INCIDENCIA"
+    )
+    m.ORM_O01_ORDER.ORM_O01_ORDER_DETAIL.ORM_O01_OBRRQDRQ1RXOODSODT_SUPPGRP.OBR.validate()
+
+    m.validate()
+    return m.to_mllp().replace("\r", "\n")
+
+
+def generate_hl7_message(type, sender, receiver, data):
+    if type == "ORM_O01":
+        return generate_hl7_orm_o01_message(sender, receiver, data)
+    else:
+        raise ValueError("Message Type not suported")
 
 
 def register_request(conn, r):
@@ -15,6 +77,11 @@ def register_request(conn, r):
             VALUES ('{r["date"]}', '{r["hour"]}', {r["patient"]["number"]}, '{r["patient"]["name"]}', '{r["patient"]["address"]}', '{r["patient"]["phone_number"]}', {r["episode_number"]}, '{r["clinical_info"]}')"""
         )
         conn.commit()
+
+        # hl7 message
+        m = generate_hl7_message("ORM_O01", "Service1", "Serivce2", r)
+        # TODO: send message
+
         return cursor.lastrowid
 
 
@@ -22,6 +89,8 @@ def cancel_request(conn, req_id):
     with conn.cursor() as cursor:
         cursor.execute(f"UPDATE work_list SET status='canceled' WHERE number={req_id}")
         conn.commit()
+
+        # TODO: create cancel message
 
 
 def check_request_status(conn, req_id):
