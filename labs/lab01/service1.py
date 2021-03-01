@@ -21,7 +21,6 @@ def generate_hl7_orm_o01_message(sender, receiver, data, cancel=False):
     m.msh.msh_9 = "ORM^O01"
     m.msh.msh_10 = nanoid.generate()
     m.msh.msh_11 = "P"
-    m.msh.validate()
 
     # pid
     m.add_group("ORM_O01_PATIENT")
@@ -29,19 +28,16 @@ def generate_hl7_orm_o01_message(sender, receiver, data, cancel=False):
     m.ORM_O01_PATIENT.pid.pid_5 = data["patient"]["name"]
     m.ORM_O01_PATIENT.pid.pid_11 = data["patient"]["address"]
     m.ORM_O01_PATIENT.pid.pid_13 = data["patient"]["phone_number"]
-    m.ORM_O01_PATIENT.pid.validate()
 
     # pv1
     m.ORM_O01_PATIENT.ORM_O01_PATIENT_VISIT.pv1.pv1_2 = "I"
     m.ORM_O01_PATIENT.ORM_O01_PATIENT_VISIT.pv1.pv1_19 = str(data["episode_number"])
-    m.ORM_O01_PATIENT.ORM_O01_PATIENT_VISIT.pv1.validate()
 
     # orc
     m.ORM_O01_ORDER.orc.orc_1 = "CA" if cancel else "NW"
     m.ORM_O01_ORDER.ORC.orc_2 = "4727374"
     m.ORM_O01_ORDER.ORC.orc_3 = "4727374"
     m.ORM_O01_ORDER.ORC.orc_9 = m.msh.msh_7
-    m.ORM_O01_ORDER.ORC.validate()
 
     # obr
     # m.ORM_O01_ORDER.ORM_O01_ORDER_DETAIL.ORM_O01_OBRRQDRQ1RXOODSODT_SUPPGRP.add_segment("OBR")
@@ -57,7 +53,6 @@ def generate_hl7_orm_o01_message(sender, receiver, data, cancel=False):
     m.ORM_O01_ORDER.ORM_O01_ORDER_DETAIL.ORM_O01_OBRRQDRQ1RXOODSODT_SUPPGRP.OBR.OBR_4 = (
         "M10405^TORAX, UMA INCIDENCIA"
     )
-    m.ORM_O01_ORDER.ORM_O01_ORDER_DETAIL.ORM_O01_OBRRQDRQ1RXOODSODT_SUPPGRP.OBR.validate()
 
     m.validate()
     return m.to_mllp().replace("\r", "\n")
