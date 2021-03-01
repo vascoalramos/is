@@ -12,23 +12,29 @@ def register_request(conn, r):
     with conn.cursor() as cursor:
         cursor.execute(
             f"""INSERT INTO work_list (date, hour, patient_id, patient_name, patient_address, patient_phone_number, episode_number, info)
-            VALUES ('{r["date"]}', '{r["hour"]}', {r["patient"]["number"]}, '{r["patient"]["name"]}', '{r["patient"]["address"]}', '{r["patient"]["phone_number"]}', {r["episode_number"]}, '{r["clinical_info"]}')"""
+            VALUES ('{r["date"]}', '{r["hour"]}', {r["patient_id"]}, '{r["patient_name"]}', '{r["patient_address"]}', '{r["patient_phone_number"]}', {r["episode_number"]}, '{r["info"]}')"""
         )
         conn.commit()
 
         # hl7 message
+        r["number"] = cursor.lastrowid
         m = generate_hl7_message("ORM_O01", "Service1", "Serivce2", r)
+        print(m)
         # TODO: send message
 
         return cursor.lastrowid
 
 
 def cancel_request(conn, req_id):
-    with conn.cursor() as cursor:
+    with conn.cursor(dictionary=True) as cursor:
         cursor.execute(f"UPDATE work_list SET status='canceled' WHERE number={req_id}")
+        cursor.execute(f"SELECT * FROM work_list WHERE number={req_id}")
+        results = cursor.fetchall()
         conn.commit()
 
         # TODO: create cancel message
+        m = generate_hl7_message("ORM_O01", "Service1", "Serivce2", results[0], True)
+        print(m)
 
 
 def check_request_status(conn, req_id):
@@ -100,16 +106,16 @@ def main():
             break
 
         elif op == "i":
-            request = {"patient": {}}
+            request = {}
             try:
-                request["patient"]["number"] = int(input("Patient number: "))
-                request["patient"]["name"] = input("Patient name: ")
-                request["patient"]["address"] = input("Patient address: ")
-                request["patient"]["phone_number"] = input("Patient phone number: ")
+                request["patient_id"] = int(input("Patient number: "))
+                request["patient_name"] = input("Patient name: ")
+                request["patient_address"] = input("Patient address: ")
+                request["patient_phone_number"] = input("Patient phone number: ")
                 request["date"] = input("Exam date: ")
                 request["hour"] = input("Exam hour: ")
                 request["episode_number"] = int(input("Episode number: "))
-                request["clinical_info"] = input("Aditional clinical info: ")
+                request["info"] = input("Aditional clinical info: ")
             except:
                 print("Invalid input!")
 
@@ -122,17 +128,20 @@ def main():
         elif op == "c":
             try:
                 req_id = int(input("Medical exam request nº: "))
-
-                if check_request_exists(conn, req_id):
-                    if not check_request_is_canceled(conn, req_id):
-                        cancel_request(conn, req_id)
-                        print(f"Medical exam request canceled successfully!\n")
-                    else:
-                        print(f"The request nº{req_id} was already canceled!\n")
-                else:
-                    print(f"The request nº{req_id} does not exist!\n")
             except:
                 print("Invalid input!")
+            else:
+                try:
+                    if check_request_exists(conn, req_id):
+                        if not check_request_is_canceled(conn, req_id):
+                            cancel_request(conn, req_id)
+                            print(f"Medical exam request canceled successfully!\n")
+                        else:
+                            print(f"The request nº{req_id} was already canceled!\n")
+                    else:
+                        print(f"The request nº{req_id} does not exist!\n")
+                except Exception as e:
+                    print("Operation failded! Try again!\nError:" + str(e) + "\n")
 
         elif op == "s":
             try:
