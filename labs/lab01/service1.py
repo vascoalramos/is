@@ -1,7 +1,7 @@
 from mysql.connector import connect
 
-from config import services
-from hl7_messages import generate_hl7_message
+from config import services, PORT2 as SERVER_PORT
+from hl7_messages import generate_hl7_message, send_message
 
 username = services[0]["username"]
 password = services[0]["password"]
@@ -12,15 +12,14 @@ def register_request(conn, r):
     with conn.cursor() as cursor:
         cursor.execute(
             f"""INSERT INTO work_list (date, hour, patient_id, patient_name, patient_address, patient_phone_number, episode_number, info)
-            VALUES ('{r["date"]}', '{r["hour"]}', {r["patient_id"]}, '{r["patient_name"]}', '{r["patient_address"]}', '{r["patient_phone_number"]}', {r["episode_number"]}, '{r["info"]}')"""
+           VALUES ('{r["date"]}', '{r["hour"]}', {r["patient_id"]}, '{r["patient_name"]}', '{r["patient_address"]}', '{r["patient_phone_number"]}', {r["episode_number"]}, 'M10405^TORAX, UMA INCIDENCIA')"""
         )
         conn.commit()
 
         # hl7 message
         r["number"] = cursor.lastrowid
         m = generate_hl7_message("ORM_O01", "Service1", "Serivce2", r)
-        print(m)
-        # TODO: send message
+        send_message(SERVER_PORT, m)
 
         return cursor.lastrowid
 
@@ -33,7 +32,7 @@ def cancel_request(conn, req_id):
         conn.commit()
 
         m = generate_hl7_message("ORM_O01", "Service1", "Serivce2", results[0], True)
-        print(m)
+        send_message(SERVER_PORT, m)
 
 
 def check_request_status(conn, req_id):

@@ -1,6 +1,10 @@
 from hl7apy.core import Message
+from hl7.client import MLLPClient
 import hl7
 import nanoid
+import re
+
+from config import IP as SERVER_IP
 
 
 def generate_hl7_orm_o01_message(sender, receiver, data, cancel):
@@ -46,9 +50,15 @@ def generate_hl7_orm_o01_message(sender, receiver, data, cancel):
     m.ORM_O01_ORDER.ORM_O01_ORDER_DETAIL.ORM_O01_OBRRQDRQ1RXOODSODT_SUPPGRP.OBR.OBR_4 = (
         "M10405^TORAX, UMA INCIDENCIA"
     )
+    time = str(data["date"])[:10] + str(data["hour"])
+    time = re.sub("[\/\-:]", "", time)
+    m.ORM_O01_ORDER.ORM_O01_ORDER_DETAIL.ORM_O01_OBRRQDRQ1RXOODSODT_SUPPGRP.OBR.OBR_7 = (
+        time
+    )
 
     m.validate()
-    return m.to_mllp().replace("\r", "\n")  # TODO: fix this
+    # return m.to_mllp().replace("\r", "\n")  # TODO: fix this
+    return m.to_mllp()
 
 
 def generate_hl7_message(type, sender, receiver, data, cancel=False):
@@ -56,3 +66,8 @@ def generate_hl7_message(type, sender, receiver, data, cancel=False):
         return generate_hl7_orm_o01_message(sender, receiver, data, cancel)
     else:
         raise ValueError("Message Type not suported")
+
+
+def send_message(port, message):
+    with MLLPClient(SERVER_IP, port) as client:
+        client.send_message(hl7.parse(message))

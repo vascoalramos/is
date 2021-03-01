@@ -10,3 +10,8 @@ services = [
         "db_name": "medical_work_list",
     },
 ]
+
+IP = "192.168.1.127"
+
+PORT1 = 6661
+PORT2 = 6662
