@@ -32,7 +32,6 @@ def cancel_request(conn, req_id):
         results = cursor.fetchall()
         conn.commit()
 
-        # TODO: create cancel message
         m = generate_hl7_message("ORM_O01", "Service1", "Serivce2", results[0], True)
         print(m)
 
