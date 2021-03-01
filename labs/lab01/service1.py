@@ -31,6 +31,7 @@ def cancel_request(conn, req_id):
         results = cursor.fetchall()
         conn.commit()
 
+        # hl7 message
         m = generate_hl7_message("ORM_O01", "Service1", "Serivce2", results[0], True)
         send_message(SERVER_PORT, m)
 
