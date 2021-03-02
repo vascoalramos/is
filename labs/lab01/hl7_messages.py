@@ -43,7 +43,6 @@ def generate_hl7_orm_o01_message(sender, receiver, data, op):
     m.ORM_O01_ORDER.ORC.orc_9 = m.msh.msh_7
 
     # obr
-    # m.ORM_O01_ORDER.ORM_O01_ORDER_DETAIL.ORM_O01_OBRRQDRQ1RXOODSODT_SUPPGRP.add_segment("OBR")
     m.ORM_O01_ORDER.ORM_O01_ORDER_DETAIL.ORM_O01_OBRRQDRQ1RXOODSODT_SUPPGRP.OBR.obr_2 = (
         "1"
     )
