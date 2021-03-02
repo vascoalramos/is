@@ -56,8 +56,7 @@ def generate_hl7_orm_o01_message(sender, receiver, data, op):
     m.ORM_O01_ORDER.ORM_O01_ORDER_DETAIL.ORM_O01_OBRRQDRQ1RXOODSODT_SUPPGRP.OBR.OBR_4 = (
         "M10405^TORAX, UMA INCIDENCIA"
     )
-    time = str(data["date"])[:10] + str(data["hour"])
-    time = re.sub("[\/\-:]", "", time)
+    time = re.sub("[\/\-:]", "", str(data["date"])[:10] + str(data["hour"]))
     m.ORM_O01_ORDER.ORM_O01_ORDER_DETAIL.ORM_O01_OBRRQDRQ1RXOODSODT_SUPPGRP.OBR.OBR_7 = (
         time
     )
