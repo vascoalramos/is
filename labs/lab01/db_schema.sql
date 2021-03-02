@@ -35,7 +35,6 @@ CREATE TABLE IF NOT EXISTS `medical_exams`.`work_list` (
   `report` LONGTEXT NULL,
   `status` VARCHAR(100) NOT NULL DEFAULT 'to be executed',
   `info` VARCHAR(45) NOT NULL,
-  `done` TINYINT NULL DEFAULT 0,
   PRIMARY KEY (`number`))
 ENGINE = InnoDB;
 
