@@ -171,16 +171,19 @@ def main():
             try:
                 req_id = int(input("Medical exam request nº: "))
                 if check_request_exists(conn, req_id):
-                    print("Enter report. Ctrl-D to save it.")
-                    lines = []
-                    while True:
-                        try:
-                            line = input()
-                        except EOFError:
-                            break
-                        lines.append(line)
-                    publish_report(conn, req_id, lines)
-                    print(f"Medical exam request report published successfully!\n")
+                    if check_request_is_canceled(conn, req_id):
+                        print(f"The request nº{req_id} was already canceled!\n")
+                    else:
+                        print("Enter report. Ctrl-D to save it.")
+                        lines = []
+                        while True:
+                            try:
+                                line = input()
+                            except EOFError:
+                                break
+                            lines.append(line)
+                        publish_report(conn, req_id, lines)
+                        print(f"Medical exam request report published successfully!\n")
                 else:
                     print(f"The request nº{req_id} does not exist!\n")
             except Exception as e:

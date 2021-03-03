@@ -3,7 +3,7 @@
   <nextMetaDataId>3</nextMetaDataId>
   <name>Service1</name>
   <description></description>
-  <revision>177</revision>
+  <revision>183</revision>
   <sourceConnector version="3.10.1">
     <metaDataId>0</metaDataId>
     <name>sourceConnector</name>
@@ -179,8 +179,6 @@ try {
 	if ($(&apos;mirth_type&apos;) == &quot;ORM-O01&quot;) {
 		if ($(&apos;orcAction&apos;) == &quot;CA&quot;) {
 			cancelRequest($(&apos;requestID&apos;));
-		} else if ($(&apos;orcAction&apos;) == &quot;NW&quot;) {
-			insertRequest();
 		} else if ($(&apos;orcAction&apos;) == &quot;SC&quot; &amp;&amp; $(&apos;orcStatus&apos;) == &quot;CM&quot;) {
 			completeRequest($(&apos;requestID&apos;));
 		}	
@@ -195,23 +193,13 @@ try {
 
 
 function cancelRequest(reqId) {
-	logger.info(reqId)
 	var vSQL = &quot;UPDATE work_list SET status=&apos;canceled&apos; WHERE number=&quot;+reqId;
     	result = dbConn.executeUpdate(vSQL);
-	logger.info(result);
+    	logger.info(result);
 }
 
 function completeRequest(reqId) {
 	var vSQL = &quot;UPDATE work_list SET status=&apos;completed&apos; WHERE number=&quot;+reqId;
-    	result = dbConn.executeUpdate(vSQL);
-	logger.info(result);
-}
-
-
-function insertRequest(reqId) {
-	var vSQL = &quot;INSERT INTO work_list (date, hour, patient_id, patient_name, patient_address, patient_phone_number, episode_number, info) VALUES (&apos;&quot;;
-	vSQL = vSQL + $(&apos;requestDate&apos;) + &quot;&apos;, &apos;&quot; + $(&apos;requestTime&apos;) + &quot;&apos;, &quot; + $(&apos;patientID&apos;) + &quot;, &apos;&quot; + $(&apos;patientName&apos;) + &quot;&apos;, &apos;&quot; + $(&apos;patientAddr&apos;) + &quot;&apos;, &apos;&quot;;
-	vSQL = vSQL + $(&apos;patientPhoneNumber&apos;) + &quot;&apos;, &quot; + $(&apos;episodeNumber&apos;) + &quot;, &apos;&quot; + $(&apos;clinicalInfo&apos;) + &quot;&apos;)&quot;;
     	result = dbConn.executeUpdate(vSQL);
 	logger.info(result);
 }
@@ -590,7 +578,7 @@ return;</undeployScript>
     <metadata>
       <enabled>true</enabled>
       <lastModified>
-        <time>1614794225307</time>
+        <time>1614806665543</time>
         <timezone>Europe/Lisbon</timezone>
       </lastModified>
       <pruningSettings>
