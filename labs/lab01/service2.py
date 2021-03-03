@@ -16,7 +16,7 @@ def finish_request(conn, req_id):
         conn.commit()
 
         # hl7 message
-        m = generate_hl7_message("ORM_O01", "Service1", "Serivce2", results[0], 2)
+        m = generate_hl7_message("ORM_O01", "Service2", "Serivce1", results[0], 2)
         send_message(SERVER_PORT, m)
 
 
@@ -28,7 +28,7 @@ def cancel_request(conn, req_id):
         conn.commit()
 
         # hl7 message
-        m = generate_hl7_message("ORM_O01", "Service1", "Serivce2", results[0], True)
+        m = generate_hl7_message("ORM_O01", "Service2", "Serivce1", results[0], True)
         send_message(SERVER_PORT, m)
 
 
