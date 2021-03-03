@@ -43,8 +43,18 @@ def check_request_status(conn, req_id):
             return None
 
 
-def publish_report(conn, req_id):
-    print("Not yet implemented!")
+def publish_report(conn, req_id, lines):
+    report = "\n".join(lines)
+    with conn.cursor(dictionary=True) as cursor:
+        cursor.execute(f"UPDATE work_list SET report='{report}' WHERE number={req_id}")
+        cursor.execute(f"SELECT * FROM work_list WHERE number={req_id}")
+        results = cursor.fetchall()
+        conn.commit()
+
+        print(results)
+        # hl7 message
+        # m = generate_hl7_message("ORM_O01", "Service2", "Serivce1", results[0], True)
+        # send_message(SERVER_PORT, m)
 
 
 def check_request_exists(conn, req_id):
@@ -159,8 +169,18 @@ def main():
         elif op == "r":
             try:
                 req_id = int(input("Medical exam request nº: "))
-                publish_report(conn, req_id)
-            except:
+                print("Enter report. Ctrl-D to save it.")
+                lines = []
+                while True:
+                    try:
+                        line = input()
+                    except EOFError:
+                        break
+                    lines.append(line)
+                publish_report(conn, req_id, lines)
+                print(f"Medical exam request report published successfully!\n")
+            except Exception as e:
+                print(e)
                 print("Invalid input!")
 
         else:
