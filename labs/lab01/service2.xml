@@ -3,7 +3,7 @@
   <nextMetaDataId>3</nextMetaDataId>
   <name>Service2</name>
   <description></description>
-  <revision>3</revision>
+  <revision>8</revision>
   <sourceConnector version="3.10.1">
     <metaDataId>0</metaDataId>
     <name>sourceConnector</name>
@@ -176,11 +176,10 @@
 
 try {
 	dbConn = DatabaseConnectionFactory.createDatabaseConnection(&apos;com.mysql.cj.jdbc.Driver&apos;,&apos;jdbc:mysql://localhost:3306/medical_work_list&apos;,&apos;service2&apos;,&apos;svc2&apos;);
-	logger.info($(&apos;requestDate&apos;) + &quot; &quot; + $(&apos;requestTime&apos;))
 	if ($(&apos;orcAction&apos;) == &quot;CA&quot;) {
 		cancelRequest($(&apos;requestID&apos;))
 	} else if ($(&apos;orcAction&apos;) == &quot;NW&quot;) {
-		insertRequest()
+		insertRequest($(&apos;requestID&apos;))
 	}
 } finally {
 	if (dbConn) { 
@@ -190,7 +189,6 @@ try {
 
 
 function cancelRequest(reqId) {
-	logger.info(reqId)
 	var vSQL = &quot;UPDATE work_list SET status=&apos;canceled&apos; WHERE number=&quot;+reqId;
     	result = dbConn.executeUpdate(vSQL);
 	logger.info(result);
@@ -198,11 +196,9 @@ function cancelRequest(reqId) {
 
 
 function insertRequest(reqId) {
-	logger.info(reqId)
-	var vSQL = &quot;INSERT INTO work_list (date, hour, patient_id, patient_name, patient_address, patient_phone_number, episode_number, info) VALUES (&apos;&quot;;
-	vSQL = vSQL + $(&apos;requestDate&apos;) + &quot;&apos;, &apos;&quot; + $(&apos;requestTime&apos;) + &quot;&apos;, &quot; + $(&apos;patientID&apos;) + &quot;, &apos;&quot; + $(&apos;patientName&apos;) + &quot;&apos;, &apos;&quot; + $(&apos;patientAddr&apos;) + &quot;&apos;, &apos;&quot;;
+	var vSQL = &quot;INSERT INTO work_list (number, date, hour, patient_id, patient_name, patient_address, patient_phone_number, episode_number, info) VALUES (&quot;;
+	vSQL = vSQL + reqId + &quot;, &apos;&quot; + $(&apos;requestDate&apos;) + &quot;&apos;, &apos;&quot; + $(&apos;requestTime&apos;) + &quot;&apos;, &quot; + $(&apos;patientID&apos;) + &quot;, &apos;&quot; + $(&apos;patientName&apos;) + &quot;&apos;, &apos;&quot; + $(&apos;patientAddr&apos;) + &quot;&apos;, &apos;&quot;;
 	vSQL = vSQL + $(&apos;patientPhoneNumber&apos;) + &quot;&apos;, &quot; + $(&apos;episodeNumber&apos;) + &quot;, &apos;&quot; + $(&apos;clinicalInfo&apos;) + &quot;&apos;)&quot;;
-	logger.info(vSQL);
     	result = dbConn.executeUpdate(vSQL);
 	logger.info(result);
 }
@@ -536,7 +532,7 @@ return;</undeployScript>
     <metadata>
       <enabled>true</enabled>
       <lastModified>
-        <time>1614624889190</time>
+        <time>1614806361196</time>
         <timezone>Europe/Lisbon</timezone>
       </lastModified>
       <pruningSettings>

@@ -3,7 +3,7 @@
   <nextMetaDataId>3</nextMetaDataId>
   <name>Service1</name>
   <description></description>
-  <revision>79</revision>
+  <revision>183</revision>
   <sourceConnector version="3.10.1">
     <metaDataId>0</metaDataId>
     <name>sourceConnector</name>
@@ -176,11 +176,14 @@
 
 try {
 	dbConn = DatabaseConnectionFactory.createDatabaseConnection(&apos;com.mysql.cj.jdbc.Driver&apos;,&apos;jdbc:mysql://localhost:3306/medical_exams&apos;,&apos;service1&apos;,&apos;svc1&apos;);
-	logger.info($(&apos;requestDate&apos;) + &quot; &quot; + $(&apos;requestTime&apos;))
-	if ($(&apos;orcAction&apos;) == &quot;CA&quot;) {
-		cancelRequest($(&apos;requestID&apos;))
-	} else if ($(&apos;orcAction&apos;) == &quot;NW&quot;) {
-		insertRequest()
+	if ($(&apos;mirth_type&apos;) == &quot;ORM-O01&quot;) {
+		if ($(&apos;orcAction&apos;) == &quot;CA&quot;) {
+			cancelRequest($(&apos;requestID&apos;));
+		} else if ($(&apos;orcAction&apos;) == &quot;SC&quot; &amp;&amp; $(&apos;orcStatus&apos;) == &quot;CM&quot;) {
+			completeRequest($(&apos;requestID&apos;));
+		}	
+	} else if ($(&apos;mirth_type&apos;) == &quot;ORU-R01&quot;) {
+		insertReport($(&apos;requestID&apos;));
 	}
 } finally {
 	if (dbConn) { 
@@ -190,21 +193,40 @@ try {
 
 
 function cancelRequest(reqId) {
-	logger.info(reqId)
 	var vSQL = &quot;UPDATE work_list SET status=&apos;canceled&apos; WHERE number=&quot;+reqId;
+    	result = dbConn.executeUpdate(vSQL);
+    	logger.info(result);
+}
+
+function completeRequest(reqId) {
+	var vSQL = &quot;UPDATE work_list SET status=&apos;completed&apos; WHERE number=&quot;+reqId;
     	result = dbConn.executeUpdate(vSQL);
 	logger.info(result);
 }
 
-
-function insertRequest(reqId) {
-	logger.info(reqId)
-	var vSQL = &quot;INSERT INTO work_list (date, hour, patient_id, patient_name, patient_address, patient_phone_number, episode_number, info) VALUES (&apos;&quot;;
-	vSQL = vSQL + $(&apos;requestDate&apos;) + &quot;&apos;, &apos;&quot; + $(&apos;requestTime&apos;) + &quot;&apos;, &quot; + $(&apos;patientID&apos;) + &quot;, &apos;&quot; + $(&apos;patientName&apos;) + &quot;&apos;, &apos;&quot; + $(&apos;patientAddr&apos;) + &quot;&apos;, &apos;&quot;;
-	vSQL = vSQL + $(&apos;patientPhoneNumber&apos;) + &quot;&apos;, &quot; + $(&apos;episodeNumber&apos;) + &quot;, &apos;&quot; + $(&apos;clinicalInfo&apos;) + &quot;&apos;)&quot;;
-	logger.info(vSQL);
+function insertReport(reqId) {
+	report = createReport();
+	var vSQL = &quot;UPDATE work_list SET report=&apos;&quot; + report +&quot;&apos; WHERE number=&quot;+reqId;
     	result = dbConn.executeUpdate(vSQL);
 	logger.info(result);
+}
+
+function createReport() {
+	var xml = new XMLList($(&apos;observations&apos;));
+
+	var reportMsg = &quot;&quot;;
+	var msg = &quot;&quot;;
+	for (var i = 0; i &lt; xml.length(); i++) {
+	    msg = xml[i][&quot;OBX.5&quot;][&quot;OBX.5.1&quot;];
+	    if (msg != &quot;&quot;) {
+			reportMsg += msg;
+	    }
+	    if (i !== xml.length() - 1) {
+	    		reportMsg += &quot;\n&quot;;
+	    }
+	}
+
+	return reportMsg;
 }
 </query>
         <useScript>true</useScript>
@@ -212,21 +234,21 @@ function insertRequest(reqId) {
       <transformer version="3.10.1">
         <elements>
           <com.mirth.connect.plugins.mapper.MapperStep version="3.10.1">
-            <name>patientName</name>
+            <name>patientID</name>
             <sequenceNumber>0</sequenceNumber>
             <enabled>true</enabled>
-            <variable>patientName</variable>
-            <mapping>msg[&apos;PID&apos;][&apos;PID.5&apos;][&apos;PID.5.1&apos;].toString()</mapping>
+            <variable>patientID</variable>
+            <mapping>msg[&apos;PID&apos;][&apos;PID.3&apos;][&apos;PID.3.1&apos;].toString()</mapping>
             <defaultValue></defaultValue>
             <replacements/>
             <scope>CHANNEL</scope>
           </com.mirth.connect.plugins.mapper.MapperStep>
           <com.mirth.connect.plugins.mapper.MapperStep version="3.10.1">
-            <name>patientID</name>
+            <name>patientName</name>
             <sequenceNumber>1</sequenceNumber>
             <enabled>true</enabled>
-            <variable>patientID</variable>
-            <mapping>msg[&apos;PID&apos;][&apos;PID.3&apos;][&apos;PID.3.1&apos;].toString()</mapping>
+            <variable>patientName</variable>
+            <mapping>msg[&apos;PID&apos;][&apos;PID.5&apos;][&apos;PID.5.1&apos;].toString()</mapping>
             <defaultValue></defaultValue>
             <replacements/>
             <scope>CHANNEL</scope>
@@ -311,8 +333,28 @@ function insertRequest(reqId) {
             <replacements/>
             <scope>CHANNEL</scope>
           </com.mirth.connect.plugins.mapper.MapperStep>
+          <com.mirth.connect.plugins.mapper.MapperStep version="3.10.1">
+            <name>orcStatus</name>
+            <sequenceNumber>10</sequenceNumber>
+            <enabled>true</enabled>
+            <variable>orcStatus</variable>
+            <mapping>msg[&apos;ORC&apos;][&apos;ORC.5&apos;][&apos;ORC.5.1&apos;].toString()</mapping>
+            <defaultValue></defaultValue>
+            <replacements/>
+            <scope>CHANNEL</scope>
+          </com.mirth.connect.plugins.mapper.MapperStep>
+          <com.mirth.connect.plugins.mapper.MapperStep version="3.10.1">
+            <name>observations</name>
+            <sequenceNumber>11</sequenceNumber>
+            <enabled>true</enabled>
+            <variable>observations</variable>
+            <mapping>msg[&apos;OBX&apos;]</mapping>
+            <defaultValue></defaultValue>
+            <replacements/>
+            <scope>CHANNEL</scope>
+          </com.mirth.connect.plugins.mapper.MapperStep>
         </elements>
-        <inboundTemplate encoding="base64">TVNIfF5+XCZ8U2VydmljZTF8U2VydmljZTF8U2VyaXZjZTJ8U2VyaXZjZTJ8MjAyMTAzMDExODA4MzZ8fE9STV5PMDF8eWFwRGtBd3EtWG5OV0p3VDg1Ym5tfFB8Mi41DVBJRHx8fDQ1Nnx8ZmxjbnNGREF8fHx8fHxCSEhGR0hCRlNHSHx8NDM1MjE1DVBWMXx8SXx8fHx8fHx8fHx8fHx8fHx8MjM0Mg1PUkN8Q0F8OXw5fHx8fHx8MjAyMTAzMDExODA4MzYNT0JSfHw5fDl8TTEwNDA1XlRPUkFYLCBVTUEgSU5DSURFTkNJQXx8fDIwMjAwMTAxMTIxMjAwDQ==</inboundTemplate>
+        <inboundTemplate encoding="base64">TVNIfF5+XCZ8U2VydmljZTJ8U2VydmljZTJ8U2VyaXZjZTF8U2VyaXZjZTF8MjAyMTAzMDMxMzAxMDR8fE9SVV5SMDF8bTNmN0x2em95TzdtbEV1aGZxWnlTfFB8Mi41DVBJRHx8fDF8fFZhc2NvfHx8fHx8ZHNmZmJofHw0NTQ1DU9SQ3xSRXwxfDF8fHx8fHwyMDIxMDMwMzEzMDEwNA1PQlJ8fDF8MXxNMTA0MDVeVE9SQVgsIFVNQSBJTkNJREVOQ0lBfHx8MjAyMTAyMDIxMDQ1MDANT0JYfDF8VFh8fHxzYWRhc2ZkZHNhZnx8fHx8fEYNT0JYfDJ8VFh8fHx8fHx8fHxGDU9CWHwzfFRYfHx8YWZkc2FmZHNmfHx8fHx8Rg0=</inboundTemplate>
         <outboundTemplate encoding="base64"></outboundTemplate>
         <inboundDataType>HL7V2</inboundDataType>
         <outboundDataType>HL7V2</outboundDataType>
@@ -536,7 +578,7 @@ return;</undeployScript>
     <metadata>
       <enabled>true</enabled>
       <lastModified>
-        <time>1614623826952</time>
+        <time>1614806665543</time>
         <timezone>Europe/Lisbon</timezone>
       </lastModified>
       <pruningSettings>

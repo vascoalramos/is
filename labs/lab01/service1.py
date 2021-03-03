@@ -18,7 +18,7 @@ def register_request(conn, r):
 
         # hl7 message
         r["number"] = cursor.lastrowid
-        m = generate_hl7_message("ORM_O01", "Service1", "Serivce2", r)
+        m = generate_hl7_message("ORM_O01", "Service1", "Service2", r)
         send_message(SERVER_PORT, m)
 
         return cursor.lastrowid
@@ -32,7 +32,7 @@ def cancel_request(conn, req_id):
         conn.commit()
 
         # hl7 message
-        m = generate_hl7_message("ORM_O01", "Service1", "Serivce2", results[0], 1)
+        m = generate_hl7_message("ORM_O01", "Service1", "Service2", results[0], 1)
         send_message(SERVER_PORT, m)
 
 

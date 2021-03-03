@@ -1,4 +1,4 @@
-from hl7apy.core import Message
+from hl7apy.core import Message, Segment
 from hl7.client import MLLPClient
 import hl7
 import nanoid
@@ -64,9 +64,75 @@ def generate_hl7_orm_o01_message(sender, receiver, data, op):
     return m.to_mllp()
 
 
+def generate_hl7_oru_r01_message(sender, receiver, data, op):
+    m = Message("ORU_R01")
+
+    # msh
+    m.MSH.msh_3 = sender
+    m.MSH.msh_4 = sender
+    m.MSH.msh_5 = receiver
+    m.MSH.msh_6 = receiver
+    m.MSH.msh_9 = "ORU^R01"
+    m.MSH.msh_10 = nanoid.generate()
+    m.MSH.msh_11 = "P"
+
+    # pid
+    m.ORU_R01_PATIENT_RESULT.ORU_R01_PATIENT.PID.pid_3 = str(data["patient_id"])
+    m.ORU_R01_PATIENT_RESULT.ORU_R01_PATIENT.PID.pid_5 = data["patient_name"]
+    m.ORU_R01_PATIENT_RESULT.ORU_R01_PATIENT.PID.pid_11 = data["patient_address"]
+    m.ORU_R01_PATIENT_RESULT.ORU_R01_PATIENT.PID.pid_13 = data["patient_phone_number"]
+
+    # orc
+    m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.ORC.orc_1 = "RE"
+    m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.ORC.orc_2 = str(data["number"])
+    m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.ORC.orc_3 = str(data["number"])
+    m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.ORC.orc_9 = m.msh.msh_7
+
+    # obr
+    m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.OBR.obr_2 = "1"
+    m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.OBR.obr_2 = str(data["number"])
+    m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.OBR.obr_3 = str(data["number"])
+    m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.OBR.OBR_4 = (
+        "M10405^TORAX, UMA INCIDENCIA"
+    )
+    time = re.sub("[\/\-:]", "", str(data["date"])[:10] + str(data["hour"]))
+    m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.OBR.OBR_7 = time
+
+    # obx
+    for idx, line in enumerate(data["report"]):
+        m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.ORU_R01_OBSERVATION.add_segment(
+            "OBX"
+        )
+        m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.ORU_R01_OBSERVATION.children[
+            idx
+        ].obx_1 = str(idx + 1)
+        m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.ORU_R01_OBSERVATION.children[
+            idx
+        ].obx_2 = "TX"
+        m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.ORU_R01_OBSERVATION.children[
+            idx
+        ].obx_5 = line
+        m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.ORU_R01_OBSERVATION.children[
+            idx
+        ].obx_11 = "F"
+    m.validate()
+
+    # TODO: maybe improve this in the future
+    message = m.to_mllp()[:-2]
+    for (
+        obx
+    ) in (
+        m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.ORU_R01_OBSERVATION.children
+    ):
+        message += obx.to_er7() + "\r"
+    return message
+
+
 def generate_hl7_message(type, sender, receiver, data, op=0):
     if type == "ORM_O01":
         return generate_hl7_orm_o01_message(sender, receiver, data, op)
+    elif type == "ORU_R01":
+        return generate_hl7_oru_r01_message(sender, receiver, data, op)
     else:
         raise ValueError("Message Type not suported")
 
