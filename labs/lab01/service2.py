@@ -51,11 +51,12 @@ def publish_report(conn, req_id, lines):
         results = cursor.fetchall()
         conn.commit()
 
+        results[0]["report"] = results[0]["report"].split("\n")
+
         print(results)
-        print(results[0]["report"].split("\n"))
         # hl7 message
-        # m = generate_hl7_message("ORM_O01", "Service2", "Serivce1", results[0], True)
-        # send_message(SERVER_PORT, m)
+        m = generate_hl7_message("ORU_R01", "Service2", "Serivce1", results[0], True)
+        send_message(SERVER_PORT, m)
 
 
 def check_request_exists(conn, req_id):
@@ -180,8 +181,8 @@ def main():
                     lines.append(line)
                 publish_report(conn, req_id, lines)
                 print(f"Medical exam request report published successfully!\n")
-            except:
-                print("Invalid input!")
+            except Exception as e:
+                print("Operation failded! Try again!\nError:" + str(e) + "\n")
 
         else:
             print("Invalid option!\n")
