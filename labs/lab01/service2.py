@@ -52,6 +52,7 @@ def publish_report(conn, req_id, lines):
         conn.commit()
 
         print(results)
+        print(results[0]["report"].split("\n"))
         # hl7 message
         # m = generate_hl7_message("ORM_O01", "Service2", "Serivce1", results[0], True)
         # send_message(SERVER_PORT, m)
