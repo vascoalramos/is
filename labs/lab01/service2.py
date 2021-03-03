@@ -180,8 +180,7 @@ def main():
                     lines.append(line)
                 publish_report(conn, req_id, lines)
                 print(f"Medical exam request report published successfully!\n")
-            except Exception as e:
-                print(e)
+            except:
                 print("Invalid input!")
 
         else:
