@@ -24,9 +24,10 @@ USE `medical_work_list` ;
 DROP TABLE IF EXISTS `medical_work_list`.`work_list` ;
 
 CREATE TABLE IF NOT EXISTS `medical_work_list`.`work_list` (
-  `number` INT NOT NULL AUTO_INCREMENT,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `date` DATE NOT NULL,
   `hour` TIME NOT NULL,
+  `request_id` INT NOT NULL,
   `patient_id` INT NOT NULL,
   `patient_name` VARCHAR(100) NOT NULL,
   `patient_address` VARCHAR(250) NOT NULL,
@@ -35,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `medical_work_list`.`work_list` (
   `report` LONGTEXT NULL,
   `status` VARCHAR(100) NOT NULL DEFAULT 'to be executed',
   `info` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`number`))
+  PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
 
