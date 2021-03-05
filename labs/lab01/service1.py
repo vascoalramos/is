@@ -1,4 +1,5 @@
 from mysql.connector import connect
+from os import path, makedirs
 
 from config import services, PORT2 as SERVER_PORT
 from hl7_messages import generate_hl7_message, send_message
@@ -185,4 +186,6 @@ def main():
 
 
 if __name__ == "__main__":
+    if not path.exists("service1"):
+        makedirs("service1")
     main()
