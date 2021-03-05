@@ -23,6 +23,7 @@ def finish_request(conn, req_id):
 
         # hl7 message
         id, m = generate_hl7_message("ORM_O01", "Service2", "Service1", results[0], 2)
+        store_message(id,m)
         send_message(SERVER_PORT, m)
 
 
