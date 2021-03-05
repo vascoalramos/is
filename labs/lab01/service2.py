@@ -1,4 +1,5 @@
 from mysql.connector import connect
+from os import path, makedirs
 
 from config import services, PORT1 as SERVER_PORT
 from hl7_messages import generate_hl7_message, send_message
@@ -6,6 +7,12 @@ from hl7_messages import generate_hl7_message, send_message
 username = services[1]["username"]
 password = services[1]["password"]
 db_name = services[1]["db_name"]
+
+
+def store_message(id, message):
+    completeName = "service2/" + id
+    with open(completeName, "w") as file:
+        file.write(message)
 
 
 def finish_request(conn, req_id):
@@ -16,7 +23,8 @@ def finish_request(conn, req_id):
         conn.commit()
 
         # hl7 message
-        m = generate_hl7_message("ORM_O01", "Service2", "Service1", results[0], 2)
+        id, m = generate_hl7_message("ORM_O01", "Service2", "Service1", results[0], 2)
+        store_message(id, m)
         send_message(SERVER_PORT, m)
 
 
@@ -28,7 +36,10 @@ def cancel_request(conn, req_id):
         conn.commit()
 
         # hl7 message
-        m = generate_hl7_message("ORM_O01", "Service2", "Service1", results[0], True)
+        id, m = generate_hl7_message(
+            "ORM_O01", "Service2", "Service1", results[0], True
+        )
+        store_message(id, m)
         send_message(SERVER_PORT, m)
 
 
@@ -54,7 +65,10 @@ def publish_report(conn, req_id, lines):
         results[0]["report"] = results[0]["report"].split("\n")
 
         # hl7 message
-        m = generate_hl7_message("ORU_R01", "Service2", "Service1", results[0], True)
+        id, m = generate_hl7_message(
+            "ORU_R01", "Service2", "Service1", results[0], True
+        )
+        store_message(id, m)
         send_message(SERVER_PORT, m)
 
 
@@ -196,4 +210,6 @@ def main():
 
 
 if __name__ == "__main__":
+    if not path.exists("service2"):
+        makedirs("service2")
     main()

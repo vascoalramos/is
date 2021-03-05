@@ -9,6 +9,8 @@ from config import IP as SERVER_IP
 
 def generate_hl7_orm_o01_message(sender, receiver, data, op):
     m = Message("ORM_O01")
+    id = nanoid.generate()
+
     req_id = data["number"] if "number" in data else data["request_id"]
 
     # msh
@@ -17,7 +19,7 @@ def generate_hl7_orm_o01_message(sender, receiver, data, op):
     m.msh.msh_5 = receiver
     m.msh.msh_6 = receiver
     m.msh.msh_9 = "ORM^O01"
-    m.msh.msh_10 = nanoid.generate()
+    m.msh.msh_10 = id
     m.msh.msh_11 = "P"
 
     # pid
@@ -62,11 +64,12 @@ def generate_hl7_orm_o01_message(sender, receiver, data, op):
     )
 
     m.validate()
-    return m.to_mllp()
+    return id, m.to_mllp()
 
 
 def generate_hl7_oru_r01_message(sender, receiver, data, op):
     m = Message("ORU_R01")
+    id = nanoid.generate()
 
     # msh
     m.MSH.msh_3 = sender
@@ -74,7 +77,7 @@ def generate_hl7_oru_r01_message(sender, receiver, data, op):
     m.MSH.msh_5 = receiver
     m.MSH.msh_6 = receiver
     m.MSH.msh_9 = "ORU^R01"
-    m.MSH.msh_10 = nanoid.generate()
+    m.MSH.msh_10 = id
     m.MSH.msh_11 = "P"
 
     # pid
@@ -133,7 +136,7 @@ def generate_hl7_oru_r01_message(sender, receiver, data, op):
         m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.ORU_R01_OBSERVATION.children
     ):
         message += obx.to_er7() + "\r"
-    return message
+    return id, message
 
 
 def generate_hl7_message(type, sender, receiver, data, op=0):

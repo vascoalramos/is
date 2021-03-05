@@ -1,4 +1,5 @@
 from mysql.connector import connect
+from os import path, makedirs
 
 from config import services, PORT2 as SERVER_PORT
 from hl7_messages import generate_hl7_message, send_message
@@ -6,6 +7,12 @@ from hl7_messages import generate_hl7_message, send_message
 username = services[0]["username"]
 password = services[0]["password"]
 db_name = services[0]["db_name"]
+
+
+def store_message(id, message):
+    completeName = "service1/" + id
+    with open(completeName, "w") as file:
+        file.write(message)
 
 
 def register_request(conn, r):
@@ -18,9 +25,9 @@ def register_request(conn, r):
 
         # hl7 message
         r["number"] = cursor.lastrowid
-        m = generate_hl7_message("ORM_O01", "Service1", "Service2", r)
+        id, m = generate_hl7_message("ORM_O01", "Service1", "Service2", r)
+        store_message(id, m)
         send_message(SERVER_PORT, m)
-
         return cursor.lastrowid
 
 
@@ -32,7 +39,8 @@ def cancel_request(conn, req_id):
         conn.commit()
 
         # hl7 message
-        m = generate_hl7_message("ORM_O01", "Service1", "Service2", results[0], 1)
+        id, m = generate_hl7_message("ORM_O01", "Service1", "Service2", results[0], 1)
+        store_message(id, m)
         send_message(SERVER_PORT, m)
 
 
@@ -178,4 +186,6 @@ def main():
 
 
 if __name__ == "__main__":
+    if not path.exists("service1"):
+        makedirs("service1")
     main()
