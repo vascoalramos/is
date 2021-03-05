@@ -3,7 +3,7 @@
   <nextMetaDataId>3</nextMetaDataId>
   <name>Service2</name>
   <description></description>
-  <revision>8</revision>
+  <revision>9</revision>
   <sourceConnector version="3.10.1">
     <metaDataId>0</metaDataId>
     <name>sourceConnector</name>
@@ -189,14 +189,14 @@ try {
 
 
 function cancelRequest(reqId) {
-	var vSQL = &quot;UPDATE work_list SET status=&apos;canceled&apos; WHERE number=&quot;+reqId;
+	var vSQL = &quot;UPDATE work_list SET status=&apos;canceled&apos; WHERE request_id=&quot;+reqId;
     	result = dbConn.executeUpdate(vSQL);
 	logger.info(result);
 }
 
 
 function insertRequest(reqId) {
-	var vSQL = &quot;INSERT INTO work_list (number, date, hour, patient_id, patient_name, patient_address, patient_phone_number, episode_number, info) VALUES (&quot;;
+	var vSQL = &quot;INSERT INTO work_list (request_id, date, hour, patient_id, patient_name, patient_address, patient_phone_number, episode_number, info) VALUES (&quot;;
 	vSQL = vSQL + reqId + &quot;, &apos;&quot; + $(&apos;requestDate&apos;) + &quot;&apos;, &apos;&quot; + $(&apos;requestTime&apos;) + &quot;&apos;, &quot; + $(&apos;patientID&apos;) + &quot;, &apos;&quot; + $(&apos;patientName&apos;) + &quot;&apos;, &apos;&quot; + $(&apos;patientAddr&apos;) + &quot;&apos;, &apos;&quot;;
 	vSQL = vSQL + $(&apos;patientPhoneNumber&apos;) + &quot;&apos;, &quot; + $(&apos;episodeNumber&apos;) + &quot;, &apos;&quot; + $(&apos;clinicalInfo&apos;) + &quot;&apos;)&quot;;
     	result = dbConn.executeUpdate(vSQL);
@@ -532,7 +532,7 @@ return;</undeployScript>
     <metadata>
       <enabled>true</enabled>
       <lastModified>
-        <time>1614806361196</time>
+        <time>1614957059703</time>
         <timezone>Europe/Lisbon</timezone>
       </lastModified>
       <pruningSettings>
