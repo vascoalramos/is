@@ -62,7 +62,7 @@ def generate_hl7_orm_o01_message(sender, receiver, data, op):
     )
 
     m.validate()
-    return m.to_mllp(), id
+    return id, m.to_mllp()
 
 
 def generate_hl7_oru_r01_message(sender, receiver, data, op):
@@ -127,7 +127,7 @@ def generate_hl7_oru_r01_message(sender, receiver, data, op):
         m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.ORU_R01_OBSERVATION.children
     ):
         message += obx.to_er7() + "\r"
-    return message, id
+    return id, message
 
 
 def generate_hl7_message(type, sender, receiver, data, op=0):

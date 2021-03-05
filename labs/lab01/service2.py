@@ -22,7 +22,7 @@ def finish_request(conn, req_id):
         conn.commit()
 
         # hl7 message
-        m, id = generate_hl7_message("ORM_O01", "Service2", "Service1", results[0], 2)
+        id, m = generate_hl7_message("ORM_O01", "Service2", "Service1", results[0], 2)
         send_message(SERVER_PORT, m)
 
 
@@ -34,9 +34,10 @@ def cancel_request(conn, req_id):
         conn.commit()
 
         # hl7 message
-        m,id = generate_hl7_message("ORM_O01", "Service2", "Service1", results[0], True)
-        send_message(SERVER_PORT, m)
+        id, m = generate_hl7_message("ORM_O01", "Service2", "Service1", results[0], True)
         store_message(id,m)
+        send_message(SERVER_PORT, m)
+
     
 
 
@@ -63,8 +64,9 @@ def publish_report(conn, req_id, lines):
 
         # hl7 message
         m = generate_hl7_message("ORU_R01", "Service2", "Service1", results[0], True)
-        send_message(SERVER_PORT, m)
         store_message(id,m)
+        send_message(SERVER_PORT, m)
+
 
 
 
