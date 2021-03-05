@@ -9,9 +9,9 @@ from config import IP as SERVER_IP
 
 def generate_hl7_orm_o01_message(sender, receiver, data, op):
     m = Message("ORM_O01")
-    id =  nanoid.generate()
-    req_id = data["number"] if "number" in data else data["request_id"]
+    id = nanoid.generate()
 
+    req_id = data["number"] if "number" in data else data["request_id"]
 
     # msh
     m.msh.msh_3 = sender
@@ -69,7 +69,7 @@ def generate_hl7_orm_o01_message(sender, receiver, data, op):
 
 def generate_hl7_oru_r01_message(sender, receiver, data, op):
     m = Message("ORU_R01")
-    id =  nanoid.generate()
+    id = nanoid.generate()
 
     # msh
     m.MSH.msh_3 = sender

@@ -9,7 +9,7 @@ db_name = services[1]["db_name"]
 
 
 def store_message(id, message):
-    completeName = 'service2/' + id      
+    completeName = "service2/" + id
     with open(completeName, "w") as file:
         file.write(message)
 
@@ -35,11 +35,11 @@ def cancel_request(conn, req_id):
         conn.commit()
 
         # hl7 message
-        id, m = generate_hl7_message("ORM_O01", "Service2", "Service1", results[0], True)
-        store_message(id,m)
+        id, m = generate_hl7_message(
+            "ORM_O01", "Service2", "Service1", results[0], True
+        )
+        store_message(id, m)
         send_message(SERVER_PORT, m)
-
-    
 
 
 def check_request_status(conn, req_id):
@@ -65,10 +65,8 @@ def publish_report(conn, req_id, lines):
 
         # hl7 message
         m = generate_hl7_message("ORU_R01", "Service2", "Service1", results[0], True)
-        store_message(id,m)
+        store_message(id, m)
         send_message(SERVER_PORT, m)
-
-
 
 
 def check_request_exists(conn, req_id):
