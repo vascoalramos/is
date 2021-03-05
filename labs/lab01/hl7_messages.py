@@ -9,6 +9,7 @@ from config import IP as SERVER_IP
 
 def generate_hl7_orm_o01_message(sender, receiver, data, op):
     m = Message("ORM_O01")
+    req_id = data["number"] if "number" in data else data["request_id"]
 
     # msh
     m.msh.msh_3 = sender
@@ -38,8 +39,8 @@ def generate_hl7_orm_o01_message(sender, receiver, data, op):
         m.ORM_O01_ORDER.orc.orc_5 = "CM"
     else:
         m.ORM_O01_ORDER.orc.orc_1 = "NW"
-    m.ORM_O01_ORDER.ORC.orc_2 = str(data["number"])
-    m.ORM_O01_ORDER.ORC.orc_3 = str(data["number"])
+    m.ORM_O01_ORDER.ORC.orc_2 = str(req_id)
+    m.ORM_O01_ORDER.ORC.orc_3 = str(req_id)
     m.ORM_O01_ORDER.ORC.orc_9 = m.msh.msh_7
 
     # obr
@@ -47,10 +48,10 @@ def generate_hl7_orm_o01_message(sender, receiver, data, op):
         "1"
     )
     m.ORM_O01_ORDER.ORM_O01_ORDER_DETAIL.ORM_O01_OBRRQDRQ1RXOODSODT_SUPPGRP.OBR.obr_2 = str(
-        data["number"]
+        req_id
     )
     m.ORM_O01_ORDER.ORM_O01_ORDER_DETAIL.ORM_O01_OBRRQDRQ1RXOODSODT_SUPPGRP.OBR.obr_3 = str(
-        data["number"]
+        req_id
     )
     m.ORM_O01_ORDER.ORM_O01_ORDER_DETAIL.ORM_O01_OBRRQDRQ1RXOODSODT_SUPPGRP.OBR.OBR_4 = (
         "M10405^TORAX, UMA INCIDENCIA"
@@ -84,14 +85,22 @@ def generate_hl7_oru_r01_message(sender, receiver, data, op):
 
     # orc
     m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.ORC.orc_1 = "RE"
-    m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.ORC.orc_2 = str(data["number"])
-    m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.ORC.orc_3 = str(data["number"])
+    m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.ORC.orc_2 = str(
+        data["request_id"]
+    )
+    m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.ORC.orc_3 = str(
+        data["request_id"]
+    )
     m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.ORC.orc_9 = m.msh.msh_7
 
     # obr
     m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.OBR.obr_2 = "1"
-    m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.OBR.obr_2 = str(data["number"])
-    m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.OBR.obr_3 = str(data["number"])
+    m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.OBR.obr_2 = str(
+        data["request_id"]
+    )
+    m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.OBR.obr_3 = str(
+        data["request_id"]
+    )
     m.ORU_R01_PATIENT_RESULT.ORU_R01_ORDER_OBSERVATION.OBR.OBR_4 = (
         "M10405^TORAX, UMA INCIDENCIA"
     )
@@ -117,7 +126,6 @@ def generate_hl7_oru_r01_message(sender, receiver, data, op):
         ].obx_11 = "F"
     m.validate()
 
-    # TODO: maybe improve this in the future
     message = m.to_mllp()[:-2]
     for (
         obx
