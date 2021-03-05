@@ -7,6 +7,12 @@ username = services[0]["username"]
 password = services[0]["password"]
 db_name = services[0]["db_name"]
 
+def store_message(id, message):
+    completeName = 'service1/' + id      
+    with open(completeName, "w") as file:
+        file.write(message)
+
+
 
 def register_request(conn, r):
     with conn.cursor() as cursor:
@@ -18,9 +24,9 @@ def register_request(conn, r):
 
         # hl7 message
         r["number"] = cursor.lastrowid
-        m = generate_hl7_message("ORM_O01", "Service1", "Service2", r)
+        m, id = generate_hl7_message("ORM_O01", "Service1", "Service2", r)
         send_message(SERVER_PORT, m)
-
+        store_message(id,m)
         return cursor.lastrowid
 
 
@@ -32,8 +38,10 @@ def cancel_request(conn, req_id):
         conn.commit()
 
         # hl7 message
-        m = generate_hl7_message("ORM_O01", "Service1", "Service2", results[0], 1)
+        m, id = generate_hl7_message("ORM_O01", "Service1", "Service2", results[0], 1)
         send_message(SERVER_PORT, m)
+        store_message(id,m)
+
 
 
 def check_request_status(conn, req_id):

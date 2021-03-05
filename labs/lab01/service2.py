@@ -8,6 +8,12 @@ password = services[1]["password"]
 db_name = services[1]["db_name"]
 
 
+def store_message(id, message):
+    completeName = 'service2/' + id      
+    with open(completeName, "w") as file:
+        file.write(message)
+
+
 def finish_request(conn, req_id):
     with conn.cursor(dictionary=True) as cursor:
         cursor.execute(f"UPDATE work_list SET status='completed' WHERE number={req_id}")
@@ -16,7 +22,7 @@ def finish_request(conn, req_id):
         conn.commit()
 
         # hl7 message
-        m = generate_hl7_message("ORM_O01", "Service2", "Service1", results[0], 2)
+        m, id = generate_hl7_message("ORM_O01", "Service2", "Service1", results[0], 2)
         send_message(SERVER_PORT, m)
 
 
@@ -28,8 +34,10 @@ def cancel_request(conn, req_id):
         conn.commit()
 
         # hl7 message
-        m = generate_hl7_message("ORM_O01", "Service2", "Service1", results[0], True)
+        m,id = generate_hl7_message("ORM_O01", "Service2", "Service1", results[0], True)
         send_message(SERVER_PORT, m)
+        store_message(id,m)
+    
 
 
 def check_request_status(conn, req_id):
@@ -56,6 +64,8 @@ def publish_report(conn, req_id, lines):
         # hl7 message
         m = generate_hl7_message("ORU_R01", "Service2", "Service1", results[0], True)
         send_message(SERVER_PORT, m)
+        store_message(id,m)
+
 
 
 def check_request_exists(conn, req_id):
