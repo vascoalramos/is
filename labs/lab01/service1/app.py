@@ -16,16 +16,55 @@ db_name = services[0]["db_name"]
 
 
 def store_message(id, message):
-    completeName = "service1/" + id
+    completeName = "logs/" + id
     with open(completeName, "w") as file:
         file.write(message)
 
 
 def register_request(conn, r):
-    with conn.cursor() as cursor:
+    with conn.cursor(dictionary=True) as cursor:
+        cursor.execute(f"SELECT * FROM patient WHERE number={r['patient_number']}")
+        results = cursor.fetchall()
+        conn.commit()
+
+        patient_id = None
+
+        if results == []:
+            cursor.execute(
+                f"""INSERT INTO patient (number, name, address, phone_number)
+                VALUES ({r["patient_number"]}, '{r["patient_name"]}', '{r["patient_address"]}', '{r["patient_phone_number"]}')"""
+            )
+            conn.commit()
+
+            patient_id = cursor.lastrowid
+
+            # hl7 message
+            id, m = generate_hl7_message("ADT_A08", "Service1", "Service2", r)
+            store_message(id, m)
+            send_message(SERVER_PORT, m)
+        else:
+            results = results[0]
+            if (
+                results["address"] != r["patient_address"]
+                or results["phone_number"] != r["patient_patient_phone_number"]
+                or results["name"] != r["patient_name"]
+            ):
+                cursor.execute(
+                    f"""UPDATE patient
+                    SET name = '{r["patient_name"]}', address = '{r["patient_address"]}', phone_number = '{r["patient_phone_number"]}'
+                    WHERE number={r['patient_number']};"""
+                )
+
+                # hl7 message
+                id, m = generate_hl7_message("ADT_A08", "Service1", "Service2", r)
+                store_message(id, m)
+                send_message(SERVER_PORT, m)
+
+        patient_id = results["id"]
+
         cursor.execute(
-            f"""INSERT INTO work_list (date, hour, patient_id, patient_name, patient_address, patient_phone_number, episode_number, info)
-           VALUES ('{r["date"]}', '{r["hour"]}', {r["patient_id"]}, '{r["patient_name"]}', '{r["patient_address"]}', '{r["patient_phone_number"]}', {r["episode_number"]}, 'M10405^TORAX, UMA INCIDENCIA')"""
+            f"""INSERT INTO work (date, hour, patient_id, episode_number, info)
+            VALUES ('{r["date"]}', '{r["hour"]}', {patient_id}, {r["episode_number"]}, 'M10405^TORAX, UMA INCIDENCIA')"""
         )
         conn.commit()
 
@@ -39,8 +78,8 @@ def register_request(conn, r):
 
 def cancel_request(conn, req_id):
     with conn.cursor(dictionary=True) as cursor:
-        cursor.execute(f"UPDATE work_list SET status='canceled' WHERE number={req_id}")
-        cursor.execute(f"SELECT * FROM work_list WHERE number={req_id}")
+        cursor.execute(f"UPDATE work SET status='canceled' WHERE number={req_id}")
+        cursor.execute(f"SELECT * FROM work WHERE number={req_id}")
         results = cursor.fetchall()
         conn.commit()
 
@@ -52,7 +91,7 @@ def cancel_request(conn, req_id):
 
 def check_request_status(conn, req_id):
     with conn.cursor() as cursor:
-        cursor.execute(f"SELECT status FROM work_list WHERE number={req_id}")
+        cursor.execute(f"SELECT status FROM work WHERE number={req_id}")
         results = cursor.fetchall()
         conn.commit()
         if results:
@@ -63,7 +102,7 @@ def check_request_status(conn, req_id):
 
 def get_request_report(conn, req_id):
     with conn.cursor() as cursor:
-        cursor.execute(f"SELECT report FROM work_list WHERE number={req_id}")
+        cursor.execute(f"SELECT report FROM work WHERE number={req_id}")
         results = cursor.fetchall()
         conn.commit()
         if results:
@@ -74,7 +113,7 @@ def get_request_report(conn, req_id):
 
 def check_request_exists(conn, req_id):
     with conn.cursor() as cursor:
-        cursor.execute(f"SELECT * FROM work_list WHERE number={req_id}")
+        cursor.execute(f"SELECT * FROM work WHERE number={req_id}")
         results = cursor.fetchall()
         conn.commit()
         return results != []
@@ -82,7 +121,7 @@ def check_request_exists(conn, req_id):
 
 def check_request_is_canceled(conn, req_id):
     with conn.cursor() as cursor:
-        cursor.execute(f"SELECT status FROM work_list WHERE number={req_id}")
+        cursor.execute(f"SELECT status FROM work WHERE number={req_id}")
         results = cursor.fetchall()
         conn.commit()
         return results[0][0].lower() == "canceled"
@@ -121,7 +160,7 @@ def main():
         elif op == "i":
             request = {}
             try:
-                request["patient_id"] = int(input("Patient number: "))
+                request["patient_number"] = int(input("Patient number: "))
                 request["patient_name"] = input("Patient name: ")
                 request["patient_address"] = input("Patient address: ")
                 request["patient_phone_number"] = input("Patient phone number: ")
@@ -192,6 +231,6 @@ def main():
 
 
 if __name__ == "__main__":
-    if not path.exists("service1"):
-        makedirs("service1")
+    if not path.exists("logs"):
+        makedirs("logs")
     main()

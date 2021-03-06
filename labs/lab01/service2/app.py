@@ -16,7 +16,7 @@ db_name = services[1]["db_name"]
 
 
 def store_message(id, message):
-    completeName = "service2/" + id
+    completeName = "logs/" + id
     with open(completeName, "w") as file:
         file.write(message)
 
@@ -216,6 +216,6 @@ def main():
 
 
 if __name__ == "__main__":
-    if not path.exists("service2"):
-        makedirs("service2")
+    if not path.exists("logs"):
+        makedirs("logs")
     main()

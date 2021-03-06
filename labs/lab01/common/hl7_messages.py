@@ -24,7 +24,7 @@ def generate_hl7_orm_o01_message(sender, receiver, data, op):
 
     # pid
     m.add_group("ORM_O01_PATIENT")
-    m.ORM_O01_PATIENT.pid.pid_3 = str(data["patient_id"])
+    m.ORM_O01_PATIENT.pid.pid_3 = str(data["patient_number"])
     m.ORM_O01_PATIENT.pid.pid_5 = data["patient_name"]
     m.ORM_O01_PATIENT.pid.pid_11 = data["patient_address"]
     m.ORM_O01_PATIENT.pid.pid_13 = data["patient_phone_number"]
@@ -81,7 +81,7 @@ def generate_hl7_oru_r01_message(sender, receiver, data, op):
     m.MSH.msh_11 = "P"
 
     # pid
-    m.ORU_R01_PATIENT_RESULT.ORU_R01_PATIENT.PID.pid_3 = str(data["patient_id"])
+    m.ORU_R01_PATIENT_RESULT.ORU_R01_PATIENT.PID.pid_3 = str(data["patient_number"])
     m.ORU_R01_PATIENT_RESULT.ORU_R01_PATIENT.PID.pid_5 = data["patient_name"]
     m.ORU_R01_PATIENT_RESULT.ORU_R01_PATIENT.PID.pid_11 = data["patient_address"]
     m.ORU_R01_PATIENT_RESULT.ORU_R01_PATIENT.PID.pid_13 = data["patient_phone_number"]
@@ -139,11 +139,44 @@ def generate_hl7_oru_r01_message(sender, receiver, data, op):
     return id, message
 
 
+def generate_hl7_adt_a08_message(sender, receiver, data, op):
+    m = Message("ADT_A01")
+    id = nanoid.generate()
+
+    # msh
+    m.MSH.msh_3 = sender
+    m.MSH.msh_4 = sender
+    m.MSH.msh_5 = receiver
+    m.MSH.msh_6 = receiver
+    m.MSH.msh_9 = "ADT^A08"
+    m.MSH.msh_10 = id
+    m.MSH.msh_11 = "P"
+
+    # evn
+    m.EVN.evn_1 = "A08"
+    m.EVN.evn_2 = m.MSH.msh_7
+
+    # pid
+    m.PID.pid_3 = str(data["patient_number"])
+    m.PID.pid_5 = data["patient_name"]
+    m.PID.pid_11 = data["patient_address"]
+    m.PID.pid_13 = data["patient_phone_number"]
+
+    # pv1
+    m.PV1.pv1_2 = "I"
+    m.PV1.pv1_19 = str(data["episode_number"])
+
+    m.validate()
+    return id, m.to_mllp()
+
+
 def generate_hl7_message(type, sender, receiver, data, op=0):
     if type == "ORM_O01":
         return generate_hl7_orm_o01_message(sender, receiver, data, op)
     elif type == "ORU_R01":
         return generate_hl7_oru_r01_message(sender, receiver, data, op)
+    elif type == "ADT_A08":
+        return generate_hl7_adt_a08_message(sender, receiver, data, op)
     else:
         raise ValueError("Message Type not suported")
 
