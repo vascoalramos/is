@@ -77,7 +77,7 @@ def register_request(conn, r):
                 send_message(SERVER_PORT, m)
 
         cursor.execute(
-            f"""INSERT INTO work (date, hour, patient_id, episode_number, info)
+            f"""INSERT INTO request (date, hour, patient_id, episode_number, info)
             VALUES ('{r["date"]}', '{r["hour"]}', {patient_id}, {r["episode_number"]}, 'M10405^TORAX, UMA INCIDENCIA')"""
         )
         conn.commit()
@@ -92,9 +92,9 @@ def register_request(conn, r):
 
 def cancel_request(conn, req_id):
     with conn.cursor(dictionary=True) as cursor:
-        cursor.execute(f"UPDATE work SET status='canceled' WHERE number={req_id}")
+        cursor.execute(f"UPDATE request SET status='canceled' WHERE number={req_id}")
         cursor.execute(
-            f"SELECT * FROM work JOIN patient ON patient_id = id WHERE work.number={req_id}"
+            f"SELECT * FROM request JOIN patient ON patient_id = id WHERE request.number={req_id}"
         )
         results = cursor.fetchall()
         conn.commit()
@@ -117,7 +117,7 @@ def cancel_request(conn, req_id):
 
 def check_request_status(conn, req_id):
     with conn.cursor() as cursor:
-        cursor.execute(f"SELECT status FROM work WHERE number={req_id}")
+        cursor.execute(f"SELECT status FROM request WHERE number={req_id}")
         results = cursor.fetchall()
         conn.commit()
         if results:
@@ -128,7 +128,7 @@ def check_request_status(conn, req_id):
 
 def get_request_report(conn, req_id):
     with conn.cursor() as cursor:
-        cursor.execute(f"SELECT report FROM work WHERE number={req_id}")
+        cursor.execute(f"SELECT report FROM request WHERE number={req_id}")
         results = cursor.fetchall()
         conn.commit()
         if results:
@@ -139,7 +139,7 @@ def get_request_report(conn, req_id):
 
 def check_request_exists(conn, req_id):
     with conn.cursor() as cursor:
-        cursor.execute(f"SELECT * FROM work WHERE number={req_id}")
+        cursor.execute(f"SELECT * FROM request WHERE number={req_id}")
         results = cursor.fetchall()
         conn.commit()
         return results != []
@@ -147,7 +147,7 @@ def check_request_exists(conn, req_id):
 
 def check_request_is_canceled(conn, req_id):
     with conn.cursor() as cursor:
-        cursor.execute(f"SELECT status FROM work WHERE number={req_id}")
+        cursor.execute(f"SELECT status FROM request WHERE number={req_id}")
         results = cursor.fetchall()
         conn.commit()
         return results[0][0].lower() == "canceled"
