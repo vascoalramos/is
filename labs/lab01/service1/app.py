@@ -42,13 +42,29 @@ def register_request(conn, r):
             id, m = generate_hl7_message("ADT_A08", "Service1", "Service2", r)
             store_message(id, m)
             send_message(SERVER_PORT, m)
+
         else:
             results = results[0]
+            patient_id = results["id"]
+
             if (
                 results["address"] != r["patient_address"]
-                or results["phone_number"] != r["patient_patient_phone_number"]
+                or results["phone_number"] != r["patient_phone_number"]
                 or results["name"] != r["patient_name"]
             ):
+                r["patient_name"] = (
+                    r["patient_name"] if r["patient_name"] != "" else results["name"]
+                )
+                r["patient_phone_number"] = (
+                    r["patient_phone_number"]
+                    if r["patient_phone_number"] != ""
+                    else results["phone_number"]
+                )
+                r["patient_address"] = (
+                    r["patient_address"]
+                    if r["patient_address"] != ""
+                    else results["address"]
+                )
                 cursor.execute(
                     f"""UPDATE patient
                     SET name = '{r["patient_name"]}', address = '{r["patient_address"]}', phone_number = '{r["patient_phone_number"]}'
@@ -59,8 +75,6 @@ def register_request(conn, r):
                 id, m = generate_hl7_message("ADT_A08", "Service1", "Service2", r)
                 store_message(id, m)
                 send_message(SERVER_PORT, m)
-
-        patient_id = results["id"]
 
         cursor.execute(
             f"""INSERT INTO work (date, hour, patient_id, episode_number, info)
@@ -79,9 +93,21 @@ def register_request(conn, r):
 def cancel_request(conn, req_id):
     with conn.cursor(dictionary=True) as cursor:
         cursor.execute(f"UPDATE work SET status='canceled' WHERE number={req_id}")
-        cursor.execute(f"SELECT * FROM work WHERE number={req_id}")
+        cursor.execute(
+            f"SELECT * FROM work JOIN patient ON patient_id = id WHERE work.number={req_id}"
+        )
         results = cursor.fetchall()
         conn.commit()
+
+        results[0]["number"] = req_id
+        results[0]["patient_number"] = results[0]["number"]
+        results[0]["patient_name"] = results[0]["name"]
+        results[0]["patient_address"] = results[0]["address"]
+        results[0]["patient_phone_number"] = results[0]["phone_number"]
+        del results[0]["id"]
+        del results[0]["name"]
+        del results[0]["address"]
+        del results[0]["phone_number"]
 
         # hl7 message
         id, m = generate_hl7_message("ORM_O01", "Service1", "Service2", results[0], 1)

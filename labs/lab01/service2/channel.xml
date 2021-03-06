@@ -3,7 +3,7 @@
   <nextMetaDataId>3</nextMetaDataId>
   <name>Service2</name>
   <description></description>
-  <revision>9</revision>
+  <revision>44</revision>
   <sourceConnector version="3.10.1">
     <metaDataId>0</metaDataId>
     <name>sourceConnector</name>
@@ -176,10 +176,14 @@
 
 try {
 	dbConn = DatabaseConnectionFactory.createDatabaseConnection(&apos;com.mysql.cj.jdbc.Driver&apos;,&apos;jdbc:mysql://localhost:3306/medical_work_list&apos;,&apos;service2&apos;,&apos;svc2&apos;);
-	if ($(&apos;orcAction&apos;) == &quot;CA&quot;) {
-		cancelRequest($(&apos;requestID&apos;))
-	} else if ($(&apos;orcAction&apos;) == &quot;NW&quot;) {
-		insertRequest($(&apos;requestID&apos;))
+	if ($(&quot;mirth_type&quot;) == &quot;ORM-O01&quot;) {
+		if ($(&apos;orcAction&apos;) == &quot;CA&quot;) {
+			cancelRequest($(&apos;requestID&apos;));
+		} else if ($(&apos;orcAction&apos;) == &quot;NW&quot;) {
+			insertRequest($(&apos;requestID&apos;));
+		}
+	} else if ($(&quot;mirth_type&quot;) == &quot;ADT-A08&quot;) {
+		insertPatient($(&apos;patientID&apos;), $(&apos;patientName&apos;), $(&apos;patientAddr&apos;), $(&apos;patientPhoneNumber&apos;));
 	}
 } finally {
 	if (dbConn) { 
@@ -189,16 +193,29 @@ try {
 
 
 function cancelRequest(reqId) {
-	var vSQL = &quot;UPDATE work_list SET status=&apos;canceled&apos; WHERE request_id=&quot;+reqId;
+	var vSQL = &quot;UPDATE work SET status=&apos;canceled&apos; WHERE request_id=&quot;+reqId;
     	result = dbConn.executeUpdate(vSQL);
 	logger.info(result);
 }
 
 
 function insertRequest(reqId) {
-	var vSQL = &quot;INSERT INTO work_list (request_id, date, hour, patient_id, patient_name, patient_address, patient_phone_number, episode_number, info) VALUES (&quot;;
-	vSQL = vSQL + reqId + &quot;, &apos;&quot; + $(&apos;requestDate&apos;) + &quot;&apos;, &apos;&quot; + $(&apos;requestTime&apos;) + &quot;&apos;, &quot; + $(&apos;patientID&apos;) + &quot;, &apos;&quot; + $(&apos;patientName&apos;) + &quot;&apos;, &apos;&quot; + $(&apos;patientAddr&apos;) + &quot;&apos;, &apos;&quot;;
-	vSQL = vSQL + $(&apos;patientPhoneNumber&apos;) + &quot;&apos;, &quot; + $(&apos;episodeNumber&apos;) + &quot;, &apos;&quot; + $(&apos;clinicalInfo&apos;) + &quot;&apos;)&quot;;
+	var vSQL = &quot;SELECT patient_id FROM patient WHERE patient_number=&quot; + $(&apos;patientID&apos;);
+    	results = dbConn.executeCachedQuery(vSQL);
+    	results.next();
+    	patient_id = results.getString(&quot;patient_id&quot;);
+	
+	var vSQL = &quot;INSERT INTO work (request_id, date, hour, patient_id, episode_number, info) VALUES (&quot;;
+	vSQL = vSQL + reqId + &quot;, &apos;&quot; + $(&apos;requestDate&apos;) + &quot;&apos;, &apos;&quot; + $(&apos;requestTime&apos;) + &quot;&apos;, &quot; + patient_id + &quot;, &quot; + $(&apos;episodeNumber&apos;) + &quot;, &apos;&quot; + $(&apos;clinicalInfo&apos;) + &quot;&apos;)&quot;;
+    	result = dbConn.executeUpdate(vSQL);
+	logger.info(result);
+}
+
+function insertPatient(patient_number, patient_name, patient_address, patient_phone_number) {
+	var vSQL = &quot;INSERT INTO patient (patient_number, patient_name, patient_address, patient_phone_number) VALUES (&quot;;
+	vSQL = vSQL + patient_number + &quot;, &apos;&quot; + patient_name + &quot;&apos;, &apos;&quot; + patient_address + &quot;&apos;, &apos;&quot; + patient_phone_number + &quot;&apos;) &quot;;
+	vSQL = vSQL + &quot;ON DUPLICATE KEY UPDATE patient_name= &apos;&quot; + patient_name + &quot;&apos;, &quot;;
+	vSQL = vSQL + &quot;patient_address = &apos;&quot; + patient_address + &quot;&apos;, patient_phone_number = &apos;&quot; + patient_phone_number + &quot;&apos;&quot;;
     	result = dbConn.executeUpdate(vSQL);
 	logger.info(result);
 }
@@ -532,7 +549,7 @@ return;</undeployScript>
     <metadata>
       <enabled>true</enabled>
       <lastModified>
-        <time>1614957059703</time>
+        <time>1615041607253</time>
         <timezone>Europe/Lisbon</timezone>
       </lastModified>
       <pruningSettings>

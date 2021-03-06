@@ -23,8 +23,10 @@ def store_message(id, message):
 
 def finish_request(conn, req_id):
     with conn.cursor(dictionary=True) as cursor:
-        cursor.execute(f"UPDATE work_list SET status='completed' WHERE id={req_id}")
-        cursor.execute(f"SELECT * FROM work_list WHERE id={req_id}")
+        cursor.execute(f"UPDATE work SET status='completed' WHERE id={req_id}")
+        cursor.execute(
+            f"SELECT * FROM work JOIN patient ON work.patient_id = patient.patient_id WHERE id={req_id}"
+        )
         results = cursor.fetchall()
         conn.commit()
 
@@ -36,8 +38,10 @@ def finish_request(conn, req_id):
 
 def cancel_request(conn, req_id):
     with conn.cursor(dictionary=True) as cursor:
-        cursor.execute(f"UPDATE work_list SET status='canceled' WHERE id={req_id}")
-        cursor.execute(f"SELECT * FROM work_list WHERE id={req_id}")
+        cursor.execute(f"UPDATE work SET status='canceled' WHERE id={req_id}")
+        cursor.execute(
+            f"SELECT * FROM work JOIN patient ON work.patient_id = patient.patient_id WHERE id={req_id}"
+        )
         results = cursor.fetchall()
         conn.commit()
 
@@ -51,7 +55,7 @@ def cancel_request(conn, req_id):
 
 def check_request_status(conn, req_id):
     with conn.cursor() as cursor:
-        cursor.execute(f"SELECT status FROM work_list WHERE id={req_id}")
+        cursor.execute(f"SELECT status FROM work WHERE id={req_id}")
         results = cursor.fetchall()
         conn.commit()
         if results:
@@ -63,8 +67,10 @@ def check_request_status(conn, req_id):
 def publish_report(conn, req_id, lines):
     report = "\n".join(lines)
     with conn.cursor(dictionary=True) as cursor:
-        cursor.execute(f"UPDATE work_list SET report='{report}' WHERE id={req_id}")
-        cursor.execute(f"SELECT * FROM work_list WHERE id={req_id}")
+        cursor.execute(f"UPDATE work SET report='{report}' WHERE id={req_id}")
+        cursor.execute(
+            f"SELECT * FROM work JOIN patient ON work.patient_id = patient.patient_id WHERE id={req_id}"
+        )
         results = cursor.fetchall()
         conn.commit()
 
@@ -80,7 +86,7 @@ def publish_report(conn, req_id, lines):
 
 def check_request_exists(conn, req_id):
     with conn.cursor() as cursor:
-        cursor.execute(f"SELECT * FROM work_list WHERE id={req_id}")
+        cursor.execute(f"SELECT * FROM work WHERE id={req_id}")
         results = cursor.fetchall()
         conn.commit()
         return results != []
@@ -88,7 +94,7 @@ def check_request_exists(conn, req_id):
 
 def check_request_is_canceled(conn, req_id):
     with conn.cursor() as cursor:
-        cursor.execute(f"SELECT status FROM work_list WHERE id={req_id}")
+        cursor.execute(f"SELECT status FROM work WHERE id={req_id}")
         results = cursor.fetchall()
         conn.commit()
         return results[0][0].lower() == "canceled"
@@ -96,7 +102,7 @@ def check_request_is_canceled(conn, req_id):
 
 def check_request_is_completed(conn, req_id):
     with conn.cursor() as cursor:
-        cursor.execute(f"SELECT status FROM work_list WHERE id={req_id}")
+        cursor.execute(f"SELECT status FROM work WHERE id={req_id}")
         results = cursor.fetchall()
         conn.commit()
         return results[0][0].lower() == "completed"
