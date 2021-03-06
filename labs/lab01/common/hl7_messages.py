@@ -1,10 +1,10 @@
-from hl7apy.core import Message, Segment
+from hl7apy.core import Message
 from hl7.client import MLLPClient
 import hl7
 import nanoid
 import re
 
-from config import IP as SERVER_IP
+from .config import IP as SERVER_IP
 
 
 def generate_hl7_orm_o01_message(sender, receiver, data, op):

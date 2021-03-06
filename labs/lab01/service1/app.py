@@ -1,8 +1,14 @@
+import sys, inspect
+
 from mysql.connector import connect
 from os import path, makedirs
 
-from config import services, PORT2 as SERVER_PORT
-from hl7_messages import generate_hl7_message, send_message
+currentdir = path.dirname(path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = path.dirname(currentdir)
+sys.path.insert(0, parentdir)
+
+from common.config import services, PORT2 as SERVER_PORT
+from common.hl7_messages import generate_hl7_message, send_message
 
 username = services[0]["username"]
 password = services[0]["password"]
