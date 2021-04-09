@@ -3,7 +3,7 @@
   <nextMetaDataId>3</nextMetaDataId>
   <name>Service1</name>
   <description></description>
-  <revision>186</revision>
+  <revision>188</revision>
   <sourceConnector version="3.10.1">
     <metaDataId>0</metaDataId>
     <name>sourceConnector</name>
@@ -175,7 +175,7 @@
         <query>var dbConn;
 
 try {
-	dbConn = DatabaseConnectionFactory.createDatabaseConnection(&apos;com.mysql.cj.jdbc.Driver&apos;,&apos;jdbc:mysql://localhost:3306/medical_exams&apos;,&apos;service1&apos;,&apos;svc1&apos;);
+	dbConn = DatabaseConnectionFactory.createDatabaseConnection(&apos;com.mysql.cj.jdbc.Driver&apos;,&apos;jdbc:mysql://localhost:3306/medical_exams?serverTimezone=UTC&apos;,&apos;service1&apos;,&apos;svc1&apos;);
 	if ($(&apos;mirth_type&apos;) == &quot;ORM-O01&quot;) {
 		if ($(&apos;orcAction&apos;) == &quot;CA&quot;) {
 			cancelRequest($(&apos;requestID&apos;));
@@ -193,20 +193,20 @@ try {
 
 
 function cancelRequest(reqId) {
-	var vSQL = &quot;UPDATE work SET status=&apos;canceled&apos; WHERE number=&quot;+reqId;
+	var vSQL = &quot;UPDATE request SET status=&apos;canceled&apos; WHERE number=&quot;+reqId;
     	result = dbConn.executeUpdate(vSQL);
     	logger.info(result);
 }
 
 function completeRequest(reqId) {
-	var vSQL = &quot;UPDATE work SET status=&apos;completed&apos; WHERE number=&quot;+reqId;
+	var vSQL = &quot;UPDATE request SET status=&apos;completed&apos; WHERE number=&quot;+reqId;
     	result = dbConn.executeUpdate(vSQL);
 	logger.info(result);
 }
 
 function insertReport(reqId) {
 	report = createReport();
-	var vSQL = &quot;UPDATE work SET report=&apos;&quot; + report +&quot;&apos; WHERE number=&quot;+reqId;
+	var vSQL = &quot;UPDATE request SET report=&apos;&quot; + report +&quot;&apos; WHERE number=&quot;+reqId;
     	result = dbConn.executeUpdate(vSQL);
 	logger.info(result);
 }
@@ -578,7 +578,7 @@ return;</undeployScript>
     <metadata>
       <enabled>true</enabled>
       <lastModified>
-        <time>1615044075026</time>
+        <time>1617957899717</time>
         <timezone>Europe/Lisbon</timezone>
       </lastModified>
       <pruningSettings>

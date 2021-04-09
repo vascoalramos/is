@@ -3,7 +3,7 @@
   <nextMetaDataId>3</nextMetaDataId>
   <name>Service2</name>
   <description></description>
-  <revision>44</revision>
+  <revision>45</revision>
   <sourceConnector version="3.10.1">
     <metaDataId>0</metaDataId>
     <name>sourceConnector</name>
@@ -175,7 +175,7 @@
         <query>var dbConn;
 
 try {
-	dbConn = DatabaseConnectionFactory.createDatabaseConnection(&apos;com.mysql.cj.jdbc.Driver&apos;,&apos;jdbc:mysql://localhost:3306/medical_work_list&apos;,&apos;service2&apos;,&apos;svc2&apos;);
+	dbConn = DatabaseConnectionFactory.createDatabaseConnection(&apos;com.mysql.cj.jdbc.Driver&apos;,&apos;jdbc:mysql://localhost:3306/medical_work_list?serverTimezone=UTC&apos;,&apos;service2&apos;,&apos;svc2&apos;);
 	if ($(&quot;mirth_type&quot;) == &quot;ORM-O01&quot;) {
 		if ($(&apos;orcAction&apos;) == &quot;CA&quot;) {
 			cancelRequest($(&apos;requestID&apos;));
@@ -549,7 +549,7 @@ return;</undeployScript>
     <metadata>
       <enabled>true</enabled>
       <lastModified>
-        <time>1615041607253</time>
+        <time>1617957889394</time>
         <timezone>Europe/Lisbon</timezone>
       </lastModified>
       <pruningSettings>
