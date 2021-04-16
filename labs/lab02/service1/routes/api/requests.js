@@ -40,7 +40,7 @@ router.put("/:id", (req, res) => {
 
     if (report) {
         // check if status is 'completed'
-        return res.status(200).jsonp({ message: "Report submeted" });
+        return res.status(200).jsonp({ message: "Report submited" });
     }
 
     return res.status(400).jsonp({ message: "Invalid payload!" });

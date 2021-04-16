@@ -13,3 +13,19 @@ module.exports.insert = (request) => {
         request.info,
     ]);
 };
+
+module.exports.getStatus = (reqId) => {
+    return db.query("SELECT status FROM work WHERE id=?", [reqId]);
+};
+
+module.exports.cancel = (reqId) => {
+    return db.query("UPDATE work SET status='canceled' WHERE id=?", [reqId]);
+};
+
+module.exports.complete = (reqId) => {
+    return db.query("UPDATE work SET status='canceled' WHERE id=?", [reqId]);
+};
+
+module.exports.writeReport = (reqId, report) => {
+    return db.query("UPDATE work SET report='?' WHERE id=?", [report, reqId]);
+};
