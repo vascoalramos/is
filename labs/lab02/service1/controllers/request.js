@@ -4,6 +4,10 @@ module.exports.list = () => {
     return db.query("SELECT * FROM request");
 };
 
+module.exports.get = (reqId) => {
+    return db.query("SELECT * FROM request WHERE number=?", [reqId]);
+};
+
 module.exports.insert = (request) => {
     return db.query("INSERT INTO request (date, hour, patient_id, episode_number, info) VALUES (?, ?, ?, ?, ?)", [
         request.date,

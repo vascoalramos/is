@@ -4,9 +4,29 @@ const router = express.Router();
 const request = require("../../controllers/request");
 
 router.get("", (req, res) => {
-    request.list().then((data) => {
-        res.status(200).jsonp(data);
-    });
+    request
+        .list()
+        .then((data) => {
+            res.status(200).jsonp(data);
+        })
+        .catch((error) => {
+            console.log(error);
+            res.status(500).jsonp(error);
+        });
+});
+
+router.get("/:id", (req, res) => {
+    let reqId = req.params.id;
+
+    request
+        .get(reqId)
+        .then((data) => {
+            res.status(200).jsonp(data);
+        })
+        .catch((error) => {
+            console.log(error);
+            res.status(500).jsonp(error);
+        });
 });
 
 router.post("", (req, res) => {
