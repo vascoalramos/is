@@ -21,16 +21,54 @@ router.post("", (req, res) => {
         });
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
     let reqId = req.params.id;
+
+    let currentStatus;
+
+    try {
+        currentStatus = (await request.getStatus(reqId))[0].status;
+    } catch {
+        return res.status(404).jsonp({ message: "Request doesn't exist!" });
+    }
 
     let status = req.body.status;
 
     if (status) {
-        if (status === "canceled") {
-            return res.status(200).jsonp({ message: "Canceled" });
+        if (status === "canceled" || status === "completed") {
+            if (currentStatus === "canceled") {
+                return res.status(400).jsonp({ message: "Request is already canceled!" });
+            } else if (currentStatus === "completed") {
+                return res.status(400).jsonp({ message: "Request is already completed!" });
+            }
+
+            try {
+                await request.updateStatus(reqId, status);
+                return res.status(200).jsonp({ message: status.charAt(0).toUpperCase() + status.slice(1) });
+            } catch (error) {
+                console.log(error);
+                return res.status(500).jsonp(error);
+            }
         } else {
             return res.status(400).jsonp({ message: "'status' not valid!'" });
+        }
+    }
+
+    let report = req.body.report;
+
+    if (report) {
+        if (currentStatus === "canceled") {
+            return res.status(400).jsonp({ message: "Request is already canceled!" });
+        } else if (currentStatus !== "completed") {
+            return res.status(400).jsonp({ message: "Request was not yet completed!" });
+        }
+
+        try {
+            await request.writeReport(reqId, report);
+            return res.status(200).jsonp({ message: "Report submited" });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).jsonp(error);
         }
     }
 
