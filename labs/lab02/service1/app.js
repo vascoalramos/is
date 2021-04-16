@@ -16,10 +16,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-const indexRouter = require("./routes/interface/index");
-app.use("/api/requests", indexRouter);
-
 const requestsAPI = require("./routes/api/requests");
+app.use("/api/requests", requestsAPI);
+
+const indexRouter = require("./routes/interface/index");
 app.use("/", indexRouter);
 
 // catch 404 and forward to error handler
