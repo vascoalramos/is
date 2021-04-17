@@ -6,6 +6,7 @@ const config = {
         user: env.DB_USER || "service1",
         password: env.DB_PASSWORD || "svc1",
         database: env.DB_NAME || "medical_exams",
+        timezone: "utc",
     },
 };
 
