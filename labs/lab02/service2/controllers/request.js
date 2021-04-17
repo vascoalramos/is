@@ -30,13 +30,13 @@ module.exports.insert = (request) => {
 };
 
 module.exports.getStatus = (reqId) => {
-    return db.query("SELECT status FROM work WHERE id=?", [reqId]);
+    return db.query("SELECT status FROM work WHERE request_id=?", [reqId]);
 };
 
 module.exports.updateStatus = (reqId, status) => {
-    return db.query("UPDATE work SET status=? WHERE id=?", [status, reqId]);
+    return db.query("UPDATE work SET status=? WHERE request_id=?", [status, reqId]);
 };
 
 module.exports.writeReport = (reqId, report) => {
-    return db.query("UPDATE work SET report=? WHERE id=?", [report, reqId]);
+    return db.query("UPDATE work SET report=? WHERE request_id=?", [report, reqId]);
 };
