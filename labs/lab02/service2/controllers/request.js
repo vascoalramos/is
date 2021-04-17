@@ -6,6 +6,15 @@ module.exports.list = () => {
     );
 };
 
+module.exports.filterByDate = (date) => {
+    return db.query(
+        `SELECT id, request_id as request_number, date, hour, episode_number, status, info, report, work.patient_id, patient_number, patient_name, patient_address, patient_phone_number
+        FROM work JOIN patient ON work.patient_id = patient.patient_id
+         WHERE date=?`,
+        [date],
+    );
+};
+
 module.exports.get = (reqId) => {
     return db.query("SELECT * FROM work WHERE id=?", [reqId]);
 };

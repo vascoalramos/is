@@ -4,8 +4,23 @@ const router = express.Router();
 const request = require("../../controllers/request");
 
 router.get("", (req, res) => {
-    request
-        .list()
+    let date = req.query.date;
+
+    let action;
+
+    if (date) {
+        if (date === "today") {
+            action = request.filterByDate(new Date().toISOString().slice(0, 10));
+        } else if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            action = request.filterByDate(date);
+        } else {
+            return res.status(400).jsonp({ message: "Date is not valid. Use format: yyyy-mm-dd" });
+        }
+    } else {
+        action = request.list();
+    }
+
+    action
         .then((data) => {
             res.status(200).jsonp(data);
         })

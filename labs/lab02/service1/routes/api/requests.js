@@ -4,8 +4,21 @@ const router = express.Router();
 const request = require("../../controllers/request");
 
 router.get("", (req, res) => {
-    request
-        .list()
+    let date = req.query.date;
+
+    let action;
+
+    if (date) {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            action = request.filterByDate(date);
+        } else {
+            return res.status(400).jsonp({ message: "Date is not valid. Use format: yyyy-mm-dd" });
+        }
+    } else {
+        action = request.list();
+    }
+
+    action
         .then((data) => {
             res.status(200).jsonp(data);
         })
@@ -22,18 +35,6 @@ router.get("/:id", (req, res) => {
         .get(reqId)
         .then((data) => {
             res.status(200).jsonp(data);
-        })
-        .catch((error) => {
-            console.log(error);
-            res.status(500).jsonp(error);
-        });
-});
-
-router.post("", (req, res) => {
-    request
-        .insert(req.body)
-        .then(() => {
-            res.status(200).jsonp({ message: "Success" });
         })
         .catch((error) => {
             console.log(error);
