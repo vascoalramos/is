@@ -1,8 +1,110 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  if view === "addPacient"
+    .container
+      .text-center
+        h2 Add Pacient
 
-  each e in data
-    p= e.status
+        form
+        .form-group
+          label(for='exampleInput1') Pacient Number
+          input#exampleInput1.form-control(type='text' aria-describedby='name')
+        .form-group
+          label(for='exampleInput2') Pacient Name
+          input#exampleInput2.form-control(type='text' aria-describedby='name')
+        .form-group
+          label(for='exampleInput3') Pacient Address
+          input#exampleInput3.form-control(type='text' aria-describedby='name')
+        .form-group
+          label(for='exampleInput4') Pacient Phone Number
+          input#exampleInput4.form-control(type='text' aria-describedby='name')
+        
+        button.btn.btn-primary(type='submit') Add Pacient
+
+  
+  else if view === "filter"
+    .container
+      .text-center
+        h2 Filter By Day
+
+        form
+        .form-group
+          label(for='exampleInput5') Exam Date
+          input#exampleInput5.form-control(type='date' name='exam_date')     
+        button.btn.btn-primary(type='submit') Search
+        p
+        table.table
+          thead
+            tr
+            th(scope='col') #
+            th(scope='col') Name
+            th(scope='col') Date
+            th(scope='col') Hour
+            th(scope='col') Address
+            th(scope='col') Number
+            th(scope='col') Episode Number
+            th(scope='col') Status
+            th(scope='col') Report
+          tbody
+            tr
+              th(scope='row') 1
+              td otoo
+              td Otto
+              td @mdo
+              td otoo
+              td Otto
+              td @mdo          
+              td Otto
+              td @mdo
+         
+  else if view === "addRequest"
+    .container
+      .text-center
+        h2 Add Request
+        form
+          .form-group
+            label(for='exampleInput1') Pacient Number
+            input#exampleInput1.form-control(type='text' aria-describedby='name')
+          .form-group
+            label(for='exampleInput5') Exam Date
+            input#exampleInput5.form-control(type='date' name='exam_date')
+          .form-group
+            label(for='exampleInput6') Exam Hour
+            input#exampleInput6.form-control(type='time' name='name' required='')
+          .form-group
+            label(for='exampleInput7') Episode Number
+            input#exampleInput7.form-control(type='number' aria-describedby='name')
+          .form-group
+            label(for='exampleFormControlTextarea1') Additional Clinical Info
+            textarea#exampleFormControlTextarea1.form-control(rows='3')
+          button.btn.btn-primary(type='submit') Add Request
+  else if view === "listExams"
+   .container
+      .text-center
+        h2 List All Exams
+      table.table
+        thead
+          tr
+          th(scope='col') #
+          th(scope='col') Name
+          th(scope='col') Date
+          th(scope='col') Hour
+          th(scope='col') Address
+          th(scope='col') Number
+          th(scope='col') Episode Number
+          th(scope='col') Status
+          th(scope='col') Report
+        tbody
+          tr
+            th(scope='row') 1
+            td otoo
+            td Otto
+            td @mdo
+            td otoo
+            td Otto
+            td @mdo          
+            td Otto
+            td @mdo
+         
+
