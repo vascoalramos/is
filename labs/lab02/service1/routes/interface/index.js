@@ -32,6 +32,7 @@ router.post("/addRequest", function (req, res) {
     request
         .insert(req.body)
         .then(() => {
+            // TODO: add request in service 2
             res.redirect("/");
         })
         .catch((error) => {
@@ -40,10 +41,10 @@ router.post("/addRequest", function (req, res) {
 });
 
 router.post("/addPatient", function (req, res) {
-    console.log(req.body);
     patient
         .insert(req.body)
         .then(() => {
+            // TODO: add patient in service 2
             res.redirect("/");
         })
         .catch((error) => {
@@ -56,6 +57,18 @@ router.post("/filter", function (req, res) {
         .filterByDate(req.body.date)
         .then((data) => {
             res.render("index", { view: "filter", date: req.body.date, data: data });
+        })
+        .catch((error) => {
+            res.render("error", { message: "Failed to submit new request", error: error });
+        });
+});
+
+router.post("/cancel/:id", function (req, res) {
+    request
+        .updateStatus(req.params.id, "canceled")
+        .then((data) => {
+            // TODO: cancel request in service 2
+            res.redirect("/");
         })
         .catch((error) => {
             res.render("error", { message: "Failed to submit new request", error: error });

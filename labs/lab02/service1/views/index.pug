@@ -51,7 +51,7 @@ block content
    .container-float
       .text-center
         if view === "listExams"
-          h2 Exam Requests
+          h2 Exams
         else
           h2 Filter By Day
 
@@ -68,16 +68,17 @@ block content
       table.table.text-center
         thead
           tr
-          th Request number
+          th Request Number
           th Patient Name
-          th Exam Date
-          th Exam Hour
+          th Date
+          th Hour
           th Patient Number
           th Patient Address
           th Patient Phone Number
           th Episode Number
-          th Exam Status
-          th Exam Report
+          th Status
+          th Report
+          th Actions
         tbody
           each entry in data
             tr
@@ -93,16 +94,22 @@ block content
                 td(style="color: #e8d500")= entry.status.toUpperCase()
                 td
                   i.far.fa-eye-slash
+                td
+                  form(action=`/cancel/${entry.number}` method="post")
+                    button(type="submit" style="outline: none; background: transparent; border: 1px solid transparent;")
+                      i.far.fa-times-circle( style="color: red")
               else if entry.status === "completed"
                 td(style="color: green")= entry.status.toUpperCase()
                 td
-                  button.btn.btn-outline-dark.py-0.px-1(type="button" onclick="alert('here')")
-                    i.far.fa-eye
+                  i.far.fa-eye(type="button" onclick="alert('here')")
+                td
               else if entry.status === "canceled"
                 td(style="color: red")= entry.status.toUpperCase()
                 td
                   i.far.fa-eye-slash
+                td
               else
                 td NULL
                 td
                   i.far.fa-eye-slash
+                td
