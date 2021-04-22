@@ -111,5 +111,20 @@ block content
               td= entry.patient_address
               td= entry.patient_phone_number          
               td= entry.episode_number
-              td= entry.status
-              td= entry.report
+              if entry.status === "to be executed"
+                td(style="color: #e8d500")= entry.status.toUpperCase()
+                td.text-center
+                  i.far.fa-eye-slash
+              else if entry.status === "completed"
+                td(style="color: green")= entry.status.toUpperCase()
+                td.text-center
+                  button.btn.btn-outline-dark(class="button" onclick="alert('here')")
+                    i.far.fa-eye
+              else if entry.status === "canceled"
+                td(style="color: red")= entry.status.toUpperCase()
+                td.text-center
+                  i.far.fa-eye-slash
+              else
+                td NULL
+                td.text-center
+                  i.far.fa-eye-slash
