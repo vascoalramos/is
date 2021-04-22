@@ -62,24 +62,27 @@ block content
     .container
       .text-center
         h2 Add Request
-        form
+        form(action="/addRequest" method="post")
           .form-group
-            label(for='exampleInput1') Pacient Number
-            input#exampleInput1.form-control(type='text' aria-describedby='name')
+            label(for='patient') Pacient
+            select#patient(class="custom-select" name="patient_id" required) 
+              option(selected disabled value="") Choose patient
+              each patient in data
+                option(value=`${patient.id};${patient.number}`)= `${patient.number} - ${patient.name}`
           .form-group
-            label(for='exampleInput5') Exam Date
-            input#exampleInput5.form-control(type='date' name='exam_date')
+            label(for='date') Exam Date
+            input#date.form-control(type='date' name='date' required)
           .form-group
-            label(for='exampleInput6') Exam Hour
-            input#exampleInput6.form-control(type='time' name='name' required='')
+            label(for='hour') Exam Hour
+            input#hour.form-control(type='time' name='hour' required)
           .form-group
-            label(for='exampleInput7') Episode Number
-            input#exampleInput7.form-control(type='number' aria-describedby='name')
+            label(for='episodeNumber') Episode Number
+            input#episodeNumber.form-control(type='number' aria-describedby='name' name="episode_number" required)
           .form-group
-            label(for='exampleFormControlTextarea1') Additional Clinical Info
-            textarea#exampleFormControlTextarea1.form-control(rows='3')
+            label(for='info') Additional Clinical Info
+            textarea#info.form-control(rows='3' name="info")
           button.btn.btn-primary(type='submit') Add Request
-          
+
   else if view === "listExams"
    .container-float
       .text-center
@@ -100,7 +103,7 @@ block content
         tbody
           each entry in data
             tr
-              th(scope='row')= entry.number
+              th= entry.number
               td= entry.patient_name
               td= entry.date.toISOString().split('T')[0]
               td= entry.hour

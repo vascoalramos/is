@@ -34,7 +34,9 @@ html
     script(src='https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js')
 
     script.
-      $('table').dataTable();
+      $('table').dataTable({
+        "order": []
+      });
 
     footer.container(style="background-color: white")
       hr

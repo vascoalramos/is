@@ -6,7 +6,6 @@ const patient = require("../../controllers/patient");
 
 router.get("/", function (req, res) {
     request.list().then((data) => {
-        console.log(data);
         res.render("index", { view: "listExams", data: data });
     });
 });
@@ -25,6 +24,19 @@ router.get("/filter", function (req, res) {
 
 router.get("/addPatient", function (req, res) {
     res.render("index", { view: "addPacient" });
+});
+
+router.post("/addRequest", function (req, res) {
+    let [patient_id, patient_number] = req.body.patient_id.split(";");
+    req.body.patient_id = patient_id;
+    request
+        .insert(req.body)
+        .then(() => {
+            res.redirect("/");
+        })
+        .catch((error) => {
+            res.render("error", { message: "Failed to submit new request", error: error });
+        });
 });
 
 module.exports = router;
