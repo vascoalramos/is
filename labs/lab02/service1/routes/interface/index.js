@@ -23,13 +23,25 @@ router.get("/filter", function (req, res) {
 });
 
 router.get("/addPatient", function (req, res) {
-    res.render("index", { view: "addPacient" });
+    res.render("index", { view: "addPatient" });
 });
 
 router.post("/addRequest", function (req, res) {
     let [patient_id, patient_number] = req.body.patient_id.split(";");
     req.body.patient_id = patient_id;
     request
+        .insert(req.body)
+        .then(() => {
+            res.redirect("/");
+        })
+        .catch((error) => {
+            res.render("error", { message: "Failed to submit new request", error: error });
+        });
+});
+
+router.post("/addPatient", function (req, res) {
+    console.log(req.body);
+    patient
         .insert(req.body)
         .then(() => {
             res.redirect("/");

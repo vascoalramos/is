@@ -1,26 +1,26 @@
 extends layout
 
 block content
-  if view === "addPacient"
+  if view === "addPatient"
     .container
       .text-center
-        h2 Add Pacient
+        h2 Add Patient
 
-        form
-        .form-group
-          label(for='exampleInput1') Pacient Number
-          input#exampleInput1.form-control(type='text' aria-describedby='name')
-        .form-group
-          label(for='exampleInput2') Pacient Name
-          input#exampleInput2.form-control(type='text' aria-describedby='name')
-        .form-group
-          label(for='exampleInput3') Pacient Address
-          input#exampleInput3.form-control(type='text' aria-describedby='name')
-        .form-group
-          label(for='exampleInput4') Pacient Phone Number
-          input#exampleInput4.form-control(type='text' aria-describedby='name')
+        form(action="/addPatient" method="post" name="addRequest")
+          .form-group
+            label(for='exampleInput1') Patient Number
+            input#exampleInput1.form-control(type='text' aria-describedby='number' name='number')
+          .form-group
+            label(for='exampleInput2') Patient Name
+            input#exampleInput2.form-control(type='text' aria-describedby='name' name='name')
+          .form-group
+            label(for='exampleInput3') Patient Address
+            input#exampleInput3.form-control(type='text' aria-describedby='address' name='address')
+          .form-group
+            label(for='exampleInput4') Patient Phone Number
+            input#exampleInput4.form-control(type='text' aria-describedby='phone_number' name='phone_number')
         
-        button.btn.btn-primary(type='submit') Add Pacient
+          button.btn.btn-primary(type='submit') Add Patient
   
   else if view === "addRequest"
     .container
@@ -28,7 +28,7 @@ block content
         h2 Add Request
         form(action="/addRequest" method="post" name="addRequest")
           .form-group
-            label(for='patient') Pacient
+            label(for='patient') Patient
             select#patient(class="custom-select" name="patient_id" required) 
               option(selected disabled value="") Choose patient
               each patient in data
