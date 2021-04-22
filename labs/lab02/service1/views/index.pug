@@ -70,12 +70,12 @@ block content
           tr
           th Request Number
           th Patient Name
-          th Date
-          th Hour
+          th Date and Time
           th Patient Number
           th Patient Address
-          th Patient Phone Number
+          th Patient Phone
           th Episode Number
+          th Info
           th Status
           th Report
           th Actions
@@ -84,12 +84,16 @@ block content
             tr
               th= entry.number
               td= entry.patient_name
-              td= entry.date.toISOString().split('T')[0]
-              td= entry.hour
+              td= `${entry.date.toISOString().split('T')[0]} ${entry.hour}`
               td= entry.patient_number
               td= entry.patient_address
               td= entry.patient_phone_number          
               td= entry.episode_number
+              td
+                if (entry.info === null || entry.info === "")
+                  i.far.fa-eye-slash
+                else
+                  i.far.fa-eye(type="button" onclick=`openModal("${entry.info.split("\n")}")`)
               if entry.status === "to be executed"
                 td(style="color: #e8d500")= entry.status.toUpperCase()
                 td
@@ -97,11 +101,14 @@ block content
                 td
                   form(action=`/cancel/${entry.number}` method="post")
                     button(type="submit" style="outline: none; background: transparent; border: 1px solid transparent;")
-                      i.far.fa-times-circle( style="color: red")
+                      i.far.fa-times-circle(style="color: red")
               else if entry.status === "completed"
                 td(style="color: green")= entry.status.toUpperCase()
                 td
-                  i.far.fa-eye(type="button" onclick="alert('here')")
+                  if (entry.report !== null)
+                    i.far.fa-eye(type="button" onclick=`openModal("${entry.report.split("\n")}")`)
+                  else
+                    i.far.fa-eye-slash
                 td
               else if entry.status === "canceled"
                 td(style="color: red")= entry.status.toUpperCase()
@@ -113,3 +120,27 @@ block content
                 td
                   i.far.fa-eye-slash
                 td
+  
+  .modal.fade(id="modal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true")
+    .modal-dialog.modal-dialog-centered
+      .modal-content
+        .modal-header
+          h5.modal-title(id="modalLabel") Modal title
+          button.close(type="button" data-dismiss="modal" aria-label="Close")
+            span(aria-hidden="true") &times;
+        .modal-body(id="modalBody")
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-dismiss="modal") Close
+
+  script.
+    function openModal(text) { 
+      $("#modalBody").empty();
+      text.split(",").forEach((line) => {
+        if (line === "")
+          $("#modalBody").append("<br/>");
+        else 
+          $("#modalBody").append(`<p>${line}</p>`);
+      })
+
+      $("#modal").modal("show");
+    }
