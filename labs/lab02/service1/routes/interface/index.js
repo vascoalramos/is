@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const axios = require("axios");
 
 const request = require("../../controllers/request");
 const patient = require("../../controllers/patient");
-const axios = require("axios");
 
 router.get("/", function (req, res) {
     request.list().then((data) => {
