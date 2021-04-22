@@ -21,48 +21,12 @@ block content
           input#exampleInput4.form-control(type='text' aria-describedby='name')
         
         button.btn.btn-primary(type='submit') Add Pacient
-
   
-  else if view === "filter"
-    .container
-      .text-center
-        h2 Filter By Day
-
-        form
-        .form-group
-          label(for='exampleInput5') Exam Date
-          input#exampleInput5.form-control(type='date' name='exam_date')     
-        button.btn.btn-primary(type='submit') Search
-        p
-        table.table
-          thead
-            tr
-            th(scope='col') #
-            th(scope='col') Name
-            th(scope='col') Date
-            th(scope='col') Hour
-            th(scope='col') Address
-            th(scope='col') Number
-            th(scope='col') Episode Number
-            th(scope='col') Status
-            th(scope='col') Report
-          tbody
-            tr
-              th(scope='row') 1
-              td otoo
-              td Otto
-              td @mdo
-              td otoo
-              td Otto
-              td @mdo          
-              td Otto
-              td @mdo
-         
   else if view === "addRequest"
     .container
       .text-center
         h2 Add Request
-        form(action="/addRequest" method="post")
+        form(action="/addRequest" method="post" name="addRequest")
           .form-group
             label(for='patient') Pacient
             select#patient(class="custom-select" name="patient_id" required) 
@@ -83,23 +47,37 @@ block content
             textarea#info.form-control(rows='3' name="info")
           button.btn.btn-primary(type='submit') Add Request
 
-  else if view === "listExams"
+  else if view === "listExams" || view === "filter"
    .container-float
       .text-center
-        h2 Exam Requests
-      table.table
+        if view === "listExams"
+          h2 Exam Requests
+        else
+          h2 Filter By Day
+
+          form(action="/filter" method="post" name="filter")
+            .form-group
+              label(for='date') Exam Date
+              if date
+                input#date.form-control(type='date' name='date' value=`${date}` required)
+              else
+                input#date.form-control(type='date' name='date' value=`${new Date().toISOString().split('T')[0]}` required)
+            button.btn.btn-primary(type='submit') Filter
+          br
+          br
+      table.table.text-center
         thead
           tr
-          th(scope='col') Request number
-          th(scope='col') Patient Name
-          th(scope='col') Exam Date
-          th(scope='col') Exam Hour
-          th(scope='col') Patient Number
-          th(scope='col') Patient Address
-          th(scope='col') Patient Phone Number
-          th(scope='col') Episode Number
-          th(scope='col') Exam Status
-          th(scope='col') Exam Report
+          th Request number
+          th Patient Name
+          th Exam Date
+          th Exam Hour
+          th Patient Number
+          th Patient Address
+          th Patient Phone Number
+          th Episode Number
+          th Exam Status
+          th Exam Report
         tbody
           each entry in data
             tr
@@ -113,18 +91,18 @@ block content
               td= entry.episode_number
               if entry.status === "to be executed"
                 td(style="color: #e8d500")= entry.status.toUpperCase()
-                td.text-center
+                td
                   i.far.fa-eye-slash
               else if entry.status === "completed"
                 td(style="color: green")= entry.status.toUpperCase()
-                td.text-center
-                  button.btn.btn-outline-dark(class="button" onclick="alert('here')")
+                td
+                  button.btn.btn-outline-dark.py-0.px-1(type="button" onclick="alert('here')")
                     i.far.fa-eye
               else if entry.status === "canceled"
                 td(style="color: red")= entry.status.toUpperCase()
-                td.text-center
+                td
                   i.far.fa-eye-slash
               else
                 td NULL
-                td.text-center
+                td
                   i.far.fa-eye-slash

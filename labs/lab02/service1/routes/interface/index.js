@@ -17,7 +17,7 @@ router.get("/addRequest", function (req, res) {
 });
 
 router.get("/filter", function (req, res) {
-    patient.list().then((data) => {
+    request.list().then((data) => {
         res.render("index", { view: "filter", data: data });
     });
 });
@@ -33,6 +33,17 @@ router.post("/addRequest", function (req, res) {
         .insert(req.body)
         .then(() => {
             res.redirect("/");
+        })
+        .catch((error) => {
+            res.render("error", { message: "Failed to submit new request", error: error });
+        });
+});
+
+router.post("/filter", function (req, res) {
+    request
+        .filterByDate(req.body.date)
+        .then((data) => {
+            res.render("index", { view: "filter", date: req.body.date, data: data });
         })
         .catch((error) => {
             res.render("error", { message: "Failed to submit new request", error: error });
