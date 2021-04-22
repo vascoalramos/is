@@ -3,6 +3,7 @@ const router = express.Router();
 
 const request = require("../../controllers/request");
 const patient = require("../../controllers/patient");
+const axios = require("axios");
 
 router.get("/", function (req, res) {
     request.list().then((data) => {
@@ -31,9 +32,17 @@ router.post("/addRequest", function (req, res) {
     req.body.patient_id = patient_id;
     request
         .insert(req.body)
-        .then(() => {
-            // TODO: add request in service 2
-            res.redirect("/");
+        .then((data) => {
+            req.body.request_id = data.insertId;
+            req.body.patient_id = patient_number;
+            axios
+                .post(`http://localhost:3001/api/requests`, req.body)
+                .then(() => {
+                    res.redirect("/");
+                })
+                .catch((error) => {
+                    res.render("error", { message: "Failed to submit new patient to service 2", error: error });
+                });
         })
         .catch((error) => {
             res.render("error", { message: "Failed to submit new request", error: error });
@@ -44,8 +53,14 @@ router.post("/addPatient", function (req, res) {
     patient
         .insert(req.body)
         .then(() => {
-            // TODO: add patient in service 2
-            res.redirect("/");
+            axios
+                .post(`http://localhost:3001/api/patients`, req.body)
+                .then(() => {
+                    res.redirect("/");
+                })
+                .catch((error) => {
+                    res.render("error", { message: "Failed to submit new patient to service 2", error: error });
+                });
         })
         .catch((error) => {
             res.render("error", { message: "Failed to submit new request", error: error });
@@ -66,9 +81,15 @@ router.post("/filter", function (req, res) {
 router.post("/cancel/:id", function (req, res) {
     request
         .updateStatus(req.params.id, "canceled")
-        .then((data) => {
-            // TODO: cancel request in service 2
-            res.redirect("/");
+        .then(() => {
+            axios
+                .put(`http://localhost:3001/api/requests/${req.params.id}`, { status: "canceled" })
+                .then(() => {
+                    res.redirect("/");
+                })
+                .catch((error) => {
+                    res.render("error", { message: "Failed to submit new request to service 2", error: error });
+                });
         })
         .catch((error) => {
             res.render("error", { message: "Failed to submit new request", error: error });
