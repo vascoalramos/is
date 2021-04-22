@@ -30,6 +30,7 @@ router.get("/addPatient", function (req, res) {
 router.post("/addRequest", function (req, res) {
     let [patient_id, patient_number] = req.body.patient_id.split(";");
     req.body.patient_id = patient_id;
+    req.body.info = req.body.info.replace(/\r/g, "");
     request
         .insert(req.body)
         .then((data) => {
