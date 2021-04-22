@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const request = require("../../controllers/request");
+const patient = require("../../controllers/patient");
 
 router.get("/", function (req, res) {
     request.list().then((data) => {
@@ -22,10 +23,8 @@ router.get("/filter", function (req, res) {
     });
 });
 
-router.get("/addPacient", function (req, res) {
-    patient.list().then((data) => {
-        res.render("index", { view: "addPacient", data: data });
-    });
+router.get("/addPatient", function (req, res) {
+    res.render("index", { view: "addPacient" });
 });
 
 module.exports = router;
