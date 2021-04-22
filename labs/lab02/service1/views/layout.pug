@@ -16,13 +16,14 @@ html
 
       .collapse.navbar-collapse(id="navbarsExampleDefault")
         ul.navbar-nav.ml-auto
-          .dropdown-group.dropleft
-            button#dropdownMenuButton.btn.btn-secondary.dropdown-toggle(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
-              | Actions
-            .dropdown-menu(aria-labelledby='dropdownMenuButton')
-              a.dropdown-item(href='/list') List Exams
-              a.dropdown-item(href='/filter') Filter by day
-              a.dropdown-item(href='/addRequest') Add Request
+          li.nav-item
+            a.nav-link(href='/list') Exam Requests
+          li.nav-item
+            a.nav-link(href='/filter') Filter
+          li.nav-item
+            a.nav-link(href='/addRequest') Add Request
+          li.nav-item
+            a.nav-link(href='/addPatient') Add Patient
 
     main(role="main", style="padding: 5em 10em 0 10em;")
       block content

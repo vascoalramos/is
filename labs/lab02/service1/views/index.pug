@@ -80,31 +80,34 @@ block content
             textarea#exampleFormControlTextarea1.form-control(rows='3')
           button.btn.btn-primary(type='submit') Add Request
   else if view === "listExams"
-   .container
+   .container-float
       .text-center
-        h2 List All Exams
+        h2 Exam Requests
       table.table
         thead
           tr
-          th(scope='col') #
-          th(scope='col') Name
-          th(scope='col') Date
-          th(scope='col') Hour
-          th(scope='col') Address
-          th(scope='col') Number
+          th(scope='col') Request number
+          th(scope='col') Patient Name
+          th(scope='col') Exam Date
+          th(scope='col') Exam Hour
+          th(scope='col') Patient Number
+          th(scope='col') Patient Address
+          th(scope='col') Patient Phone Number
           th(scope='col') Episode Number
-          th(scope='col') Status
-          th(scope='col') Report
+          th(scope='col') Exam Status
+          th(scope='col') Exam Report
         tbody
-          tr
-            th(scope='row') 1
-            td otoo
-            td Otto
-            td @mdo
-            td otoo
-            td Otto
-            td @mdo          
-            td Otto
-            td @mdo
+          each entry in data
+            tr
+              th(scope='row')= entry.number
+              td= entry.patient_name
+              td= entry.date.toISOString().split('T')[0]
+              td= entry.hour
+              td= entry.patient_number
+              td= entry.patient_address
+              td= entry.patient_phone_number          
+              td= entry.episode_number
+              td= entry.status
+              td= entry.report
          
 
