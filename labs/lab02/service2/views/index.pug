@@ -1,5 +1,112 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  if view === "listExams" || view === "today"
+   .container-float
+      .text-center
+        if view === "listExams"
+          h2 Exams
+        else
+          h2 Today Exams
+      table.table.text-center
+        thead
+          tr
+          th Request Number
+          th Patient Name
+          th Date and Time
+          th Patient Number
+          th Patient Address
+          th Patient Phone
+          th Episode Number
+          th Info
+          th Status
+          th Report
+          th Actions
+        tbody
+          each entry in data
+            tr
+              th= entry.request_number
+              td= entry.patient_name
+              td= `${entry.date.toISOString().split('T')[0]} ${entry.hour}`
+              td= entry.patient_number
+              td= entry.patient_address
+              td= entry.patient_phone_number          
+              td= entry.episode_number
+              td
+                if (entry.info === null || entry.info === "")
+                  i.far.fa-eye-slash
+                else
+                  i.far.fa-eye(type="button" onclick=`openModal("${entry.info.split("\n")}")`)
+              if entry.status === "to be executed"
+                td(style="color: #e8d500")= entry.status.toUpperCase()
+                td
+                  i.far.fa-eye-slash
+                td
+                  form(action=`/cancel/${entry.request_number}` method="post")
+                    button(type="submit" style="outline: none; background: transparent; border: 1px solid transparent;")
+                      i.far.fa-times-circle(style="color: red")
+                  form(action=`/complete/${entry.request_number}` method="post")
+                    button(type="submit" style="outline: none; background: transparent; border: 1px solid transparent;")
+                        i.far.fa-check-circle(style="color: green")
+              else if entry.status === "completed"
+                td(style="color: green")= entry.status.toUpperCase()
+                td
+                  if (entry.report !== null)
+                    i.far.fa-eye(type="button" onclick=`openModal("${entry.report.split("\n")}")`)
+                  else
+                    i.far.fa-edit(type="button" onclick=`openReportModal("${entry.request_number}")`)
+                td
+              else if entry.status === "canceled"
+                td(style="color: red")= entry.status.toUpperCase()
+                td
+                  i.far.fa-eye-slash
+                td
+              else
+                td NULL
+                td
+                  i.far.fa-eye-slash
+                td
+  
+  .modal.fade(id="modal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true")
+    .modal-dialog.modal-dialog-centered
+      .modal-content
+        .modal-header
+          button.close(type="button" data-dismiss="modal" aria-label="Close")
+            span(aria-hidden="true") &times;
+        .modal-body(id="modalBody")
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-dismiss="modal") Close
+
+  .modal.fade(tabindex='-1' id='report_form' aria-labelledby='exampleModalLabel' aria-hidden='true')
+    .modal-dialog.modal-dialog-centered
+      .modal-content
+        .modal-header.border-bottom-0
+          h5#exampleModalLabel.modal-title Write Report
+          button.close(type='button' data-dismiss='modal' aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          form#reportForm(action="" method="post")
+            .form-group
+              label(for='report') Report
+              textarea.form-control(id="message" rows='3' name="report" placeholder='Enter Report')
+            button.btn.btn-success(type='submit') Submit
+
+  script.
+    function openModal(text) { 
+      $("#modalBody").empty();
+      text.split(",").forEach((line) => {
+        if (line === "")
+          $("#modalBody").append("<br/>");
+        else 
+          $("#modalBody").append(`<p>${line}</p>`);
+      })
+
+      $("#modal").modal("show");
+    }
+
+    function openReportModal(id){
+      $('#message').val('');
+      $("#reportForm").attr("action", `/report/${id}`);
+
+      $("#report_form").modal("show");
+    }
