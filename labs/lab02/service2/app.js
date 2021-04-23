@@ -19,6 +19,9 @@ app.use(express.static(path.join(__dirname, "public")));
 const requestsAPI = require("./routes/api/requests");
 app.use("/api/requests", requestsAPI);
 
+const patientsAPI = require("./routes/api/patients");
+app.use("/api/patients", patientsAPI);
+
 const indexRouter = require("./routes/interface/index");
 app.use("/", indexRouter);
 

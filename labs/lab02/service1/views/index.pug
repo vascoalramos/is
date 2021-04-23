@@ -1,8 +1,146 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  if view === "addPatient"
+    .container
+      .text-center
+        h2 Add Patient
 
-  each e in data
-    p= e.status
+        form(action="/addPatient" method="post" name="addRequest")
+          .form-group
+            label(for='exampleInput1') Patient Number
+            input#exampleInput1.form-control(type='text' aria-describedby='number' name='number')
+          .form-group
+            label(for='exampleInput2') Patient Name
+            input#exampleInput2.form-control(type='text' aria-describedby='name' name='name')
+          .form-group
+            label(for='exampleInput3') Patient Address
+            input#exampleInput3.form-control(type='text' aria-describedby='address' name='address')
+          .form-group
+            label(for='exampleInput4') Patient Phone Number
+            input#exampleInput4.form-control(type='text' aria-describedby='phone_number' name='phone_number')
+        
+          button.btn.btn-primary(type='submit') Add Patient
+  
+  else if view === "addRequest"
+    .container
+      .text-center
+        h2 Add Request
+        form(action="/addRequest" method="post" name="addRequest")
+          .form-group
+            label(for='patient') Patient
+            select#patient(class="custom-select" name="patient_id" required) 
+              option(selected disabled value="") Choose patient
+              each patient in data
+                option(value=`${patient.id};${patient.number}`)= `${patient.number} - ${patient.name}`
+          .form-group
+            label(for='date') Exam Date
+            input#date.form-control(type='date' name='date' required)
+          .form-group
+            label(for='hour') Exam Hour
+            input#hour.form-control(type='time' name='hour' required)
+          .form-group
+            label(for='episodeNumber') Episode Number
+            input#episodeNumber.form-control(type='number' aria-describedby='name' name="episode_number" required)
+          .form-group
+            label(for='info') Additional Clinical Info
+            textarea#info.form-control(rows='3' name="info")
+          button.btn.btn-primary(type='submit') Add Request
+
+  else if view === "listExams" || view === "filter"
+   .container-float
+      .text-center
+        if view === "listExams"
+          h2 Exams
+        else
+          h2 Filter By Day
+
+          form(action="/filter" method="post" name="filter")
+            .form-group
+              label(for='date') Exam Date
+              if date
+                input#date.form-control(type='date' name='date' value=`${date}` required)
+              else
+                input#date.form-control(type='date' name='date' value=`${new Date().toISOString().split('T')[0]}` required)
+            button.btn.btn-primary(type='submit') Filter
+          br
+          br
+      table.table.text-center
+        thead
+          tr
+          th Request Number
+          th Patient Name
+          th Date and Time
+          th Patient Number
+          th Patient Address
+          th Patient Phone
+          th Episode Number
+          th Info
+          th Status
+          th Report
+          th Actions
+        tbody
+          each entry in data
+            tr
+              th= entry.number
+              td= entry.patient_name
+              td= `${entry.date.toISOString().split('T')[0]} ${entry.hour}`
+              td= entry.patient_number
+              td= entry.patient_address
+              td= entry.patient_phone_number          
+              td= entry.episode_number
+              td
+                if (entry.info === null || entry.info === "")
+                  i.far.fa-eye-slash
+                else
+                  i.far.fa-eye(type="button" onclick=`openModal("${entry.info.split("\n")}")`)
+              if entry.status === "to be executed"
+                td(style="color: #e8d500")= entry.status.toUpperCase()
+                td
+                  i.far.fa-eye-slash
+                td
+                  form(action=`/cancel/${entry.number}` method="post")
+                    button(type="submit" style="outline: none; background: transparent; border: 1px solid transparent;")
+                      i.far.fa-times-circle(style="color: red")
+              else if entry.status === "completed"
+                td(style="color: green")= entry.status.toUpperCase()
+                td
+                  if (entry.report !== null)
+                    i.far.fa-eye(type="button" onclick=`openModal("${entry.report.split("\n")}")`)
+                  else
+                    i.far.fa-eye-slash
+                td
+              else if entry.status === "canceled"
+                td(style="color: red")= entry.status.toUpperCase()
+                td
+                  i.far.fa-eye-slash
+                td
+              else
+                td NULL
+                td
+                  i.far.fa-eye-slash
+                td
+  
+  .modal.fade(id="modal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true")
+    .modal-dialog.modal-dialog-centered
+      .modal-content
+        .modal-header
+          h5.modal-title(id="modalLabel") Modal title
+          button.close(type="button" data-dismiss="modal" aria-label="Close")
+            span(aria-hidden="true") &times;
+        .modal-body(id="modalBody")
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-dismiss="modal") Close
+
+  script.
+    function openModal(text) { 
+      $("#modalBody").empty();
+      text.split(",").forEach((line) => {
+        if (line === "")
+          $("#modalBody").append("<br/>");
+        else 
+          $("#modalBody").append(`<p>${line}</p>`);
+      })
+
+      $("#modal").modal("show");
+    }

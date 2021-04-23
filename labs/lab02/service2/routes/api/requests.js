@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const request = require("../../controllers/request");
+const patient = require("../../controllers/patient");
 
 router.get("", (req, res) => {
     let date = req.query.date;
@@ -44,7 +45,8 @@ router.get("/:id", (req, res) => {
         });
 });
 
-router.post("", (req, res) => {
+router.post("", async (req, res) => {
+    req.body.patient_id = (await patient.getPatientByNumber(req.body.patient_id))[0].patient_id;
     request
         .insert(req.body)
         .then(() => {
